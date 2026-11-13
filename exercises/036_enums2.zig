@@ -1,33 +1,28 @@
 //
-// Enums are really just a set of numbers. You can leave the
-// numbering up to the compiler, or you can assign them
-// explicitly. You can even specify the numeric type used.
+// 枚举本质上只是一组数字。可以把编号交给编译器决定，
+// 也可以显式指定。甚至还可以指定使用的数值类型。
 //
 //     const Stuff = enum(u8){ foo = 16 };
 //
-// You can get the integer out with a builtin function,
-// @backingInt(). We'll learn about builtins properly in a later
-// exercise.
+// 可以用内置函数 @backingInt() 获取对应整数。
+// 后面的练习会详细介绍内置函数。
 //
 //     const my_stuff: u8 = @backingInt(Stuff.foo);
 //
-// Note how that built-in function starts with "@" just like the
-// @import() function we've been using.
+// 注意，这个内置函数和我们一直在用的 @import() 一样以 "@" 开头。
 //
 const std = @import("std");
 
-// Zig lets us write integers in hexadecimal format:
+// Zig 允许我们用十六进制格式书写整数：
 //
-//     0xf (is the value 15 in hex)
+//     0xf（十六进制中的值为 15）
 //
-// Web browsers let us specify colors using a hexadecimal
-// number where each byte represents the brightness of the
-// Red, Green, or Blue component (RGB) where two hex digits
-// are one byte with a value range of 0-255:
+// 网页浏览器允许我们用十六进制数指定颜色。每个字节表示红、绿、蓝（RGB）
+// 分量的亮度；两个十六进制数字组成一个字节，取值范围为 0 到 255：
 //
 //     #RRGGBB
 //
-// Please define and use a pure blue value Color:
+// 请定义并使用纯蓝色的 Color 值：
 const Color = enum(u32) {
     red = 0xff0000,
     green = 0x00ff00,
@@ -35,20 +30,19 @@ const Color = enum(u32) {
 };
 
 pub fn main() void {
-    // Remember Zig's multi-line strings? Here they are again.
-    // Also, check out this cool format string:
+    // 还记得 Zig 的多行字符串吗？它们又出现了。
+    // 另外，看看这个有趣的格式字符串：
     //
     //     {x:0>6}
     //      ^
-    //      x       type ('x' is lower-case hexadecimal)
-    //       :      separator (needed for format syntax)
-    //        0     padding character (default is ' ')
-    //         >    alignment ('>' aligns right)
-    //          6   width (use padding to force width)
+    //      x       类型（'x' 表示小写十六进制）
+    //       :      分隔符（格式语法所需）
+    //        0     填充字符（默认为空格）
+    //         >    对齐方式（'>' 表示右对齐）
+    //          6   宽度（使用填充字符达到指定宽度）
     //
-    // Please add this formatting to the blue value.
-    // (Even better, experiment without it, or try parts of it
-    // to see what prints!)
+    // 请将此格式应用到蓝色值上。
+    //（更好的做法是去掉它试试，或只尝试其中一部分，看看输出是什么！）
     std.debug.print(
         \\<p>
         \\  <span style="color: #{x:0>6}">Red</span>

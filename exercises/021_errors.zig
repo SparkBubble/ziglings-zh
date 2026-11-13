@@ -1,12 +1,10 @@
 //
-// Believe it or not, sometimes things go wrong in programs.
+// 信不信由你，程序有时确实会出错。
 //
-// In Zig, an error is a value. Errors are named so we can identify
-// things that can go wrong. Errors are created in "error sets", which
-// are just a collection of named errors.
+// 在 Zig 中，错误也是一种值。错误会有名称，便于识别可能出错的情况。
+// 错误在“错误集合”中定义，它就是一组带名称的错误。
 //
-// We have the start of an error set, but we're missing the condition
-// "TooSmall". Please add it where needed!
+// 错误集合已经有了开头，但缺少 "TooSmall" 这一项。请在需要的地方补上！
 const MyNumberError = error{
     TooBig,
     ???,
@@ -37,8 +35,7 @@ pub fn main() void {
     std.debug.print("\n", .{});
 }
 
-// Notice how this function can return any member of the MyNumberError
-// error set.
+// 注意，这个函数可以返回 MyNumberError 错误集合中的任意成员。
 fn numberFail(n: u8) MyNumberError {
     if (n > 4) return MyNumberError.TooBig;
     if (n < 4) return MyNumberError.TooSmall; // <---- this one is free!

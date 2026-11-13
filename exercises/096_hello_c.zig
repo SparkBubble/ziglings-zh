@@ -1,68 +1,56 @@
 //
-// When Andrew Kelley announced the idea of a new programming language
-// - namely Zig - in his blog on February 8, 2016, he also immediately
-// stated his ambitious goal: to replace the C language!
+// 2016 年 2 月 8 日，Andrew Kelley 在博客中宣布了一门新编程语言——Zig，
+// 并立即提出了雄心勃勃的目标：取代 C 语言！
 //
-// In order to be able to achieve this goal at all, Zig should be
-// as compatible as possible with its "predecessor".
-// Only if it is possible to exchange individual modules in existing
-// C programs without having to use complicated wrappers,
-// the undertaking has a chance of success.
+// 要实现这个目标，Zig 必须尽可能兼容它的“前身”。
+// 只有在无需复杂封装就能替换现有 C 程序中的独立模块时，
+// 这项事业才有成功的可能。
 //
-// So it is not surprising that calling C functions and vice versa
-// is extremely "smooth".
+// 因此，Zig 调用 C 函数以及反向调用都非常“顺畅”，这并不奇怪。
 //
-// To call C functions in Zig, you only need to specify the library
-// that contains said function. For this purpose there is a built-in
-// function corresponding to the well-known @import():
+// 要在 Zig 中调用 C 函数，只需指定包含该函数的库。
+// 为此，Zig 提供了一个与熟悉的 @import() 对应的内置函数：
 //
 //                           @cImport()
 //
-// All required libraries can now be included in the usual Zig notation:
+// 现在可以用常见的 Zig 语法引入所需库：
 //
 //                    const c = @cImport({
 //                        @cInclude("stdio.h");
 //                        @cInclude("...");
 //                    });
 //
-// Now a function can be called via the (in this example) constant 'c':
+// 现在可以通过常量 'c'（在本例中）调用函数：
 //
 //                    c.puts("Hello world!");
 //
-// By the way, most C functions have return values in the form of an
-// integer value. Errors can then be evaluated (return < 0) or other
-// information can be obtained. For example, 'puts' returns the number
-// of characters output.
+// 顺便一提，大多数 C 函数会返回整数值。可以据此判断错误（返回值 < 0），
+// 或获取其他信息。例如，'puts' 会返回输出的字符数。
 //
-// So that all this does not remain a dry theory now, let's just start
-// and call a C function out of Zig.
+// 为了不让这些内容停留在枯燥的理论上，我们现在就从 Zig 调用一个 C 函数。
 
-// our well-known "import" for Zig
+// 我们熟悉的 Zig "import"
 const std = @import("std");
 
-// and here the new import for C
+// 以及这里用于导入 C 的新方式
 const c = @cImport({
     @cInclude("unistd.h");
 });
 
 pub fn main() void {
 
-    // In order to output text that can be evaluated by the
-    // Zig Builder, we need to write it to the Error output.
-    // In Zig, we do this with "std.debug.print" and in C we can
-    // specify a file descriptor i.e. 2 for error console.
+    // 为了输出可由 Zig Builder 检查的文本，需要写入标准错误。
+    // 在 Zig 中使用 "std.debug.print"；在 C 中可以指定文件描述符，
+    // 例如用 2 表示错误输出。
     //
-    // In this exercise we use 'write' to output 17 chars,
-    // but something is still missing...
+    // 本练习中我们用 'write' 输出 17 个字符，但还缺了点什么……
     const c_res = write(2, "Hello C from Zig!", 17);
 
-    // let's see what the result from C is:
+    // 来看看 C 函数的结果：
     std.debug.print(" - C result is {d} chars written.\n", .{c_res});
 }
 //
-// Something must be considered when compiling with C functions.
-// Namely that the Zig compiler knows that it should include
-// corresponding libraries. For this purpose we call the compiler
-// with the parameter "lc" for such a program,
-// e.g. "zig run -lc hello_c.zig".
+// 编译含 C 函数的程序时有一点需要注意：必须让 Zig 编译器知道要链接相应的库。
+// 为此，调用编译器时需要给这类程序传入参数 "lc"，
+// 例如："zig run -lc hello_c.zig"。
 //

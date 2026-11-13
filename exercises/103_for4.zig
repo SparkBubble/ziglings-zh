@@ -1,36 +1,27 @@
 //
-// We've seen that the 'for' loop can let us perform some action
-// for every item in an array or slice.
+// 我们已经看到，'for' 循环可以对数组或切片中的每个元素执行操作。
 //
-// More recently, we discovered that it supports ranges to
-// iterate over number sequences.
+// 最近还学到，它支持使用范围遍历数字序列。
 //
-// This is part of a more general capability of the `for` loop:
-// looping over one or more "objects" where an object is an
-// array, slice, or range.
+// 这是 `for` 循环一项更通用能力的一部分：遍历一个或多个“对象”，
+// 对象可以是数组、切片或范围。
 //
-// In fact, we *did* use multiple objects way back in Exercise
-// 016 where we iterated over an array and also a numeric index.
-// It didn't always work exactly this way, so the exercise had to
-// be retroactively modified a little bit.
+// 事实上，早在练习 016 中，我们*就*使用过多个对象，遍历数组和数字索引。
+// 由于语法并非一直如此，后来对那个练习做了一些调整。
 //
 //     for (bits, 0..) |bit, i| { ... }
 //
-// The general form of a 'for' loop with two lists is:
+// 带两个列表的 'for' 循环的一般形式是：
 //
 //     for (list_a, list_b) |a, b| {
-//         // Here we have the first item from list_a and list_b,
-//         // then the second item from each, then the third and
-//         // so forth...
+//         // 这里会依次取得 list_a 和 list_b 的第一个元素，
+//         // 然后是各自的第二个、第三个，依此类推……
 //     }
 //
-// What's really beautiful about this is that we don't have to
-// keep track of an index or advancing a memory pointer for
-// *either* of these lists. That error-prone stuff is all taken
-// care of for us by the compiler.
+// 这样做的好处是，我们不必为*任何一个*列表跟踪索引或移动内存指针。
+// 这些容易出错的工作都由编译器替我们完成。
 //
-// Below, we have a program that is supposed to compare two
-// arrays. Please make it work!
+// 下面的程序应该比较两个数组。请让它正常工作！
 //
 const std = @import("std");
 const print = std.debug.print;
@@ -49,5 +40,4 @@ pub fn main() void {
     print("Arrays match!\n", .{});
 }
 //
-// You are perhaps wondering what happens if one of the two lists
-// is longer than the other? Try it!
+// 你可能会想，如果两个列表的长度不同会怎样？试试看！

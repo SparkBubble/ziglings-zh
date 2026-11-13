@@ -1,43 +1,32 @@
 //
-// We've already learned plenty about bit manipulation using bitwise operations
-// in exercises 100 and 101 and in quiz 113. The techniques we already know work
-// just fine, but creating masks and shifting individual bits around can become
-// quite tedious and unwieldy pretty quickly.
-// What if there was a better, a more convenient way to control individual bits?
+// 我们已经在练习 100、101 和测验 113 中学过许多使用位运算进行位操作的知识。
+// 已学的方法完全可行，但创建掩码、逐位移位很快就会变得繁琐又难处理。
+// 有没有更好、更方便的方式来控制单个位呢？
 //
-// Luckily, Zig has a keyword for exactly this purpose:
+// 幸运的是，Zig 有一个专门用于此目的的关键字：
 //
 //     packed
 //
-// It doesn't do anything on its own, to unlock its potential (and to get our
-// program to compile) we have to attach it either to a struct or to a union
-// declaration:
+// 单独使用它并不会产生效果。要发挥它的作用（并让程序编译通过），
+// 必须将它附加到 struct 或 union 声明上：
 //
 //     const Foo = packed struct { ... };
 //     const Bar = packed union { ... };
 //
-// Now, what does this keyword even do?
-// To answer this question we first have to talk about *container layouts*.
+// 那么这个关键字究竟做什么？回答这个问题前，我们先谈谈*容器布局*。
 //
-// Plain structs and unions use the `auto` layout; it gives no guarantees about
-// their size or the order of the fields they contain, both are fully up to the
-// compiler (though both size and field order *are* guaranteed to be the same
-// across any single compilation unit).
+// 普通结构体和联合体使用 `auto` 布局；它不保证容器大小或字段顺序，这些完全由编译器决定
+//（不过在同一个编译单元中，大小和字段顺序*确实*保证一致）。
 //
-// Attaching the `packed` keyword to a container makes it use `packed` layout:
-// Suddenly, all of its fields are *packed* together tightly without any padding
-// in between and their order is guaranteed to be the same as the one specified
-// in our source code. For structs, the size of the container is guaranteed to
-// be the sum of the (bit-)sizes of all of its fields. For unions, all fields
-// have to have the exact same (bit-)size (no padding allowed!); the union itself
-// is also guaranteed to be exactly of this size.
+// 在容器上添加 `packed` 关键字后，它就会使用 `packed` 布局：所有字段会紧密地*打包*在一起，
+// 中间没有填充，并保证字段顺序与源代码中的声明顺序一致。对于结构体，容器大小保证等于
+// 所有字段的位大小之和。对于联合体，所有字段的位大小必须完全相同（不允许填充！），
+// 联合体本身也保证恰好是这个大小。
 //
-// If you're familiar with C, you might have already heard of structure packing
-// in a different context: arranging fields in a way that minimizes the amount
-// of alignment padding between them (or having the compiler do it for you).
-// This is *not* what Zig's `packed` keyword is for!
+// 如果你熟悉 C，可能听说过另一种语境下的结构体打包：调整字段顺序以尽量减少对齐填充
+//（或让编译器替你完成）。这*不是* Zig 的 `packed` 关键字的用途！
 //
-// Try to make the comptime assertions below pass:
+// 试着让下面的 comptime 断言通过：
 
 const PackedStruct = packed struct {
     a: u2,
@@ -57,16 +46,13 @@ comptime {
     assert(@bitSizeOf(PackedUnion) == 1);
 }
 
-// Now, how can we use this new knowledge to manipulate some bits?
+// 现在，如何运用这些新知识来操作位呢？
 //
-// As you might have already guessed, `packed` containers are very useful for
-// representing bitflags or other tightly packed collections of bit-sized values
-// often found in file headers and network protocols.
+// 你可能已经猜到，`packed` 容器非常适合表示位标志，或其他紧密排列的位大小值集合，
+// 这类数据常见于文件头和网络协议中。
 //
-// Let's take a look at a real-life example:
-// The LZ4 compression format (†) specifies a frame format to describe compressed
-// data. Each LZ4 frame has a descriptor, and each descriptor contains a 'FLG'
-// byte that specifies the contents of its frame:
+// 来看一个真实例子：LZ4 压缩格式（†）定义了一种描述压缩数据的帧格式。
+// 每个 LZ4 帧都有一个描述符，其中包含一个 'FLG' 字节，用于指定帧的内容：
 
 /// |  BitNb  |  7-6  |   5   |    4     |  3   |    2     |   1    |   0  |
 /// | ------- |-------|-------|----------|------|----------|--------|------|
@@ -82,26 +68,19 @@ const FLG = packed struct(u8) {
     version: u2,
 };
 
-// Wait, what's with the `(u8)` after the `struct` keyword? What do integers have
-// to do with all of this?
-// Well, this is a good opportunity to come clear about something:
-// packed structs and packed unions aren't actually structs or unions at all...
-// They are merely integers in disguise! For all intents and purposes, their
-// fields are just convenient names for ranges of their underlying bits. To make
-// it easier to enforce size requirements for packed containers, Zig allows us
-// to specify a *backing integer* for them, just like for enums.
+// 等等，struct 关键字后面的 `(u8)` 是什么？整数和这些内容有什么关系？
+// 正好借此机会说明一点：packed 结构体和 packed 联合体其实并不是真正的结构体或联合体……
+// 它们只是伪装起来的整数！实际上，它们的字段只是底层位范围的便捷名称。
+// 为了更容易满足 packed 容器的大小要求，Zig 允许像枚举一样为其指定*底层整数类型*。
 //
-// In the case of `FLG`, we want our struct to occupy exactly a single byte, so
-// we specify `u8` as the backing integer. It's safe to convert between a packed
-// container and its backing integer using the builtin `@bitCast`.
-// The LZ4 spec also mandates that reserved bits must always be zero, so it's
-// good practice to set `0` as a default value for `reserved`.
+// 对于 `FLG`，我们希望结构体恰好占一个字节，因此指定 `u8` 为底层整数类型。
+// 可以安全地使用内置函数 `@bitCast` 在 packed 容器和底层整数之间转换。
+// LZ4 规范还要求保留位始终为零，因此最好将 `reserved` 的默认值设为 `0`。
 //
-// The fields of a packed struct start at the least significant bit of its backing
-// integer and end at its most significant bit. This is the case no matter what
-// endianness our target has.
+// packed 结构体的字段从底层整数的最低有效位开始，直到最高有效位结束。
+// 无论目标平台采用何种字节序，都是如此。
 //
-// Try to silence the complaints below:
+// 试着解决下面的报错：
 
 const Bits = packed struct(u4) {
     a: u1 = 0,
@@ -142,24 +121,20 @@ pub fn main() void {
     }
 }
 
-// As we can see, equality comparisons (`==` and `!=`) work for packed structs.
-// They also work for packed unions. However, since packed containers are not
-// naturally ordered, we can't use any other comparison operators on them.
+// 可以看到，等值比较（`==` 和 `!=`）适用于 packed 结构体和 packed 联合体。
+// 不过 packed 容器没有自然顺序，因此不能对它们使用其他比较运算符。
 //
-// It's also possible to use packed containers in `switch` statements, which we
-// will cover in the next exercise!
+// 也可以在 `switch` 语句中使用 packed 容器，下一练习会介绍！
 //
-// Since packed containers make very strong guarantees about their memory layout,
-// only a handful of types are eligible to be part of them.
-// The following types are allowed as field types:
+// 由于 packed 容器对内存布局做出了严格保证，因此只有少数类型可以作为其中的字段类型：
 //
-// - integers
-// - floats
+// - 整数
+// - 浮点数
 // - bool
 // - void
-// - enums with explicit backing integers
-// - packed unions
-// - packed structs
+// - 显式指定底层整数类型的枚举
+// - packed 联合体
+// - packed 结构体
 //
 
 const std = @import("std");

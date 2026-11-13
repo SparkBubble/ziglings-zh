@@ -1,7 +1,7 @@
 //
-// Quiz time. See if you can make this program work!
+// 测验时间。看看你能否让这个程序正常运行！
 //
-// Solve this any way you like, just be sure the output is:
+// 可以用任意方法解决，只要输出结果为：
 //
 //     my_num=42
 //
@@ -19,7 +19,7 @@ pub fn main(init: std.process.Init) !void {
     try stdout.print("my_num={}\n", .{my_num});
 }
 
-// This function is obviously weird and non-functional. But you will not be changing it for this quiz.
+// 这个函数显然很奇怪，也无法正常工作。但本次测验不需要修改它。
 fn getNumber() NumError!u32 {
     if (false) return NumError.IllegalNumber;
     return 42;

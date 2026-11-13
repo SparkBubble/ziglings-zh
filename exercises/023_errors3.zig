@@ -1,10 +1,10 @@
 //
-// One way to deal with error unions is to "catch" any error and
-// replace it with a default value.
+// 处理错误联合类型的一种方法是用 "catch" 捕获错误，
+// 并将其替换为默认值。
 //
 //     foo = canFail() catch 6;
 //
-// If canFail() fails, foo will equal 6.
+// 如果 canFail() 出错，foo 就会等于 6。
 //
 const std = @import("std");
 
@@ -17,8 +17,8 @@ pub fn main() void {
     std.debug.print("a={}, b={}\n", .{ a, b });
 }
 
-// Please provide the return type from this function.
-// Hint: it'll be an error union.
+// 请为这个函数指定返回类型。
+// 提示：它是错误联合类型。
 fn addTwenty(n: u32) ??? {
     if (n < 5) {
         return MyNumberError.TooSmall;

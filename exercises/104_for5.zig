@@ -1,41 +1,33 @@
 //
-// The 'for' loop is not just limited to looping over one or two
-// items. Let's try an example with a whole bunch!
+// 'for' 循环不只适用于遍历一两个项目。来试试同时遍历许多项目！
 //
-// But first, there's one last thing we've avoided mentioning
-// until now: The special range that leaves off the last value:
+// 不过，先介绍最后一个之前一直没提到的内容：不指定结束值的特殊范围：
 //
 //     for ( things, 0.. ) |t, i| { ... }
 //
-// That's how we tell Zig that we want to get a numeric value for
-// every item in "things", starting with 0.
+// 这样就能告诉 Zig，为 "things" 中的每个项目生成一个从 0 开始的数字索引。
 //
-// A nice feature of these index ranges is that you can have them
-// start with any number you choose. The first value of "i" in
-// this example will be 500, then 501, 502, etc.:
+// 这些索引范围的一个优点是可以从任意数字开始。本例中 "i" 的第一个值
+// 是 500，之后依次为 501、502 等：
 //
 //     for ( things, 500.. ) |t, i| { ... }
 //
-// Remember our RPG characters? They had the following
-// properties, which we stored in a struct type:
+// 还记得我们的 RPG 角色吗？我们曾将以下属性存储在结构体类型中：
 //
 //     class
 //     gold
 //     experience
 //
-// What we're going to do now is store the same RPG character
-// data, but in a separate array for each property.
+// 现在我们要存储相同的 RPG 角色数据，不过每个属性各自放在单独的数组中。
 //
-// It might look a little awkward, but let's bear with it.
+// 这种写法看起来有点别扭，不过先继续看下去。
 //
-// We've started writing a program to print a numbered list of
-// characters with each of their properties, but it needs a
-// little help:
+// 我们已经开始编写一个程序，用编号列表打印角色及其属性，但还需要一点帮助：
 //
 const std = @import("std");
 const print = std.debug.print;
 
-// This is the same character role enum we've seen before.
+// 这是之前见过的角色职业枚举。
 const Role = enum {
     wizard,
     thief,
@@ -44,13 +36,12 @@ const Role = enum {
 };
 
 pub fn main() void {
-    // Here are the three "property" arrays:
+    // 以下是三个“属性”数组：
     const roles = [4]Role{ .wizard, .bard, .bard, .warrior };
     const gold = [4]u16{ 25, 11, 5, 7392 };
     const experience = [4]u8{ 40, 17, 55, 21 };
 
-    // We would like to number our list starting with 1, not 0.
-    // How do we do that?
+    // 我们希望列表从 1 开始编号，而不是从 0 开始。该怎么做？
     for (roles, gold, experience, ???) |c, g, e, i| {
         const role_name = switch (c) {
             .wizard => "Wizard",
@@ -68,59 +59,37 @@ pub fn main() void {
     }
 }
 //
-// By the way, storing our character data in arrays like this
-// isn't *just* a silly way to demonstrate multi-object 'for'
-// loops.
+// 顺便一提，这样将角色数据存入数组，*不只是*为了展示多对象 'for' 循环。
 //
-// It's *also* a silly way to introduce a concept called
-// "data-oriented design".
+// 这*也是*介绍“面向数据设计”这一概念的一种有趣方式。
 //
-// Let's use a metaphor to build up an intuition for what this is
-// all about:
+// 我们用一个比喻来建立直觉：
 //
-// Let's say you've been tasked with grabbing three glass
-// marbles, three spoons, and three feathers from a magic bag.
-// But you can't use your hands to grab them. Instead, you must
-// use a marble scoop, spoon magnet, and feather tongs to grab
-// each type of object.
+// 假设你要从魔法袋中取出三个玻璃弹珠、三把勺子和三根羽毛。
+// 但不能用手取，只能分别用弹珠勺、勺子磁铁和羽毛夹来取对应物品。
 //
-// Now, would you rather use the magic bag:
+// 那么，你更希望魔法袋：
 //
-// A. Grouped the items in clusters so you have to pick up one
-//    marble, then one spoon, then one feather?
+// A. 将物品混在一起，让你每次必须依次取一个弹珠、一把勺子和一根羽毛？
 //
 //    OR
 //
-// B. Grouped the items by type so you can pick up all of the
-//    marbles at once, then all the spoons, then all of the
-//    feathers?
+// B. 按类型分组，这样你可以一次取出所有弹珠，再取出所有勺子，最后取出所有羽毛？
 //
-// If this metaphor is working, hopefully, it's clear that the 'B'
-// option would be much more efficient.
+// 如果这个比喻说明白了，你应该能看出选项 'B' 效率高得多。
 //
-// Well, it probably comes as little surprise that storing and
-// using data in a sequential and uniform fashion is also more
-// efficient for modern CPUs.
+// 将数据按顺序、统一的方式存储和使用，对现代 CPU 来说也更高效，这应该并不意外。
 //
-// Decades of OOP practices have steered people towards grouping
-// different data types together into mixed-type "objects" with
-// the intent that these are easier on the human mind.
-// Data-oriented design groups data by type in a way that is
-// easier on the computer.
+// 数十年的面向对象编程实践让人们倾向于把不同类型的数据放进混合类型的“对象”，
+// 因为这样更符合人的思维。面向数据设计则按类型组织数据，让计算机更容易处理。
 //
-// With clever language design, maybe we can have both.
+// 通过巧妙的语言设计，也许我们可以兼得。
 //
-// In the Zig community, you may see the difference in groupings
-// presented with the terms "Array of Structs" (AoS) versus
-// "Struct of Arrays" (SoA).
+// 在 Zig 社区中，这两种组织方式常被称为“结构体数组”（AoS）和“数组结构体”（SoA）。
 //
-// To envision these two designs in action, imagine an array of
-// RPG character structs, each containing three different data
-// types (AoS) versus a single RPG character struct containing
-// three arrays of one data type each, like those in the exercise
-// above (SoA).
+// 想象一下这两种设计：一个 RPG 角色结构体数组，每个结构体包含三种不同数据（AoS）；
+// 或者一个 RPG 角色结构体，其中有三个各自存放一种数据的数组，就像上面的练习（SoA）。
 //
-// For a more practical application of "data-oriented design"
-// watch the following talk from Andrew Kelley, the creator of Zig:
+// 想了解“面向数据设计”的实际应用，请观看 Zig 创作者 Andrew Kelley 的演讲：
 // https://vimeo.com/649009599
 //

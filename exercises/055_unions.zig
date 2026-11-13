@@ -1,11 +1,8 @@
 //
-// A union lets you store different types and sizes of data at
-// the same memory address. How is this possible? The compiler
-// sets aside enough memory for the largest thing you might want
-// to store.
+// 联合体可以在同一个内存地址存储不同类型和大小的数据。这是怎么做到的？
+// 编译器会预留足够的空间，以容纳你可能要存储的最大数据。
 //
-// In this example, an instance of Foo always takes up u64 of
-// space in memory even if you're currently storing a u8.
+// 在这个例子中，Foo 实例总会占用 u64 大小的内存，即使当前存储的是 u8。
 //
 //     const Foo = union {
 //         small: u8,
@@ -13,61 +10,53 @@
 //         large: u64,
 //     };
 //
-// The syntax looks just like a struct, but a Foo can only hold a
-// small OR a medium OR a large value. Once a field becomes
-// active, the other inactive fields cannot be accessed. To
-// change active fields, assign a whole new instance:
+// 语法看起来和结构体一样，但 Foo 只能存储 small、medium、large 中的一种值。
+// 某个字段激活后，其他未激活字段便不能访问。要更改激活字段，需赋一个全新的实例：
 //
 //     var f = Foo{ .small = 5 };
 //     f.small += 5;                  // OKAY
 //     f.medium = 5432;               // ERROR!
 //     f = Foo{ .medium = 5432 };     // OKAY
 //
-// Unions can save space in memory because they let you "re-use"
-// a space in memory. They also provide a sort of primitive
-// polymorphism. Here fooBar() can take a Foo no matter what size
-// of unsigned integer it holds:
+// 联合体允许“重复利用”同一块内存，因此可以节省空间。它们也提供了一种原始的多态。
+// 无论 Foo 中存储的是哪种大小的无符号整数，fooBar() 都可以接受它：
 //
 //     fn fooBar(f: Foo) void { ... }
 //
-// Oh, but how does fooBar() know which field is active? Zig has
-// a neat way of keeping track, but for now, we'll just have to
-// do it manually.
+// 不过，fooBar() 怎么知道哪个字段处于激活状态？Zig 有一种很好的跟踪方式，
+// 但现在我们只能手动记录。
 //
-// Let's see if we can get this program working!
+// 看看能否让这个程序运行起来！
 //
 const std = @import("std");
 
-// We've just started writing a simple ecosystem simulation.
-// Insects will be represented by either bees or ants. Bees store
-// the number of flowers they've visited that day and ants just
-// store whether or not they're still alive.
+// 我们刚开始编写一个简单的生态系统模拟。
+// 昆虫用蜜蜂或蚂蚁表示。蜜蜂存储当天拜访过的花朵数量，
+// 蚂蚁则只存储它们是否还活着。
 const Insect = union {
     flowers_visited: u16,
     still_alive: bool,
 };
 
-// Since we need to specify the type of insect, we'll use an
-// enum (remember those?).
+// 因为需要指定昆虫类型，所以我们会使用枚举（还记得它吗？）。
 const AntOrBee = enum { a, b };
 
 pub fn main() void {
-    // We'll just make one bee and one ant to test them out:
+    // 我们先创建一只蜜蜂和一只蚂蚁来测试：
     const ant = Insect{ .still_alive = true };
     const bee = Insect{ .flowers_visited = 15 };
 
     std.debug.print("Insect report! ", .{});
 
-    // Oops! We've made a mistake here.
+    // 哎呀！这里出错了。
     printInsect(ant, AntOrBee.c);
     printInsect(bee, AntOrBee.c);
 
     std.debug.print("\n", .{});
 }
 
-// Eccentric Doctor Zoraptera says that we can only use one
-// function to print our insects. Doctor Z is small and sometimes
-// inscrutable but we do not question her.
+// 古怪的 Zoraptera 博士说，我们只能用一个函数打印昆虫。
+// Z 博士个子不高，有时令人费解，但我们不会质疑她。
 fn printInsect(insect: Insect, what_it_is: AntOrBee) void {
     switch (what_it_is) {
         .a => std.debug.print("Ant alive is: {}. ", .{insect.still_alive}),

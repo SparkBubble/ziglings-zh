@@ -5,7 +5,7 @@
 //     from Holding Hands
 //       by Lenore M. Link
 //
-// Now that we have tails all figured out, can you implement trunks?
+// 象鼻的部分已经搞清楚了，你能实现长鼻子吗？
 //
 const std = @import("std");
 
@@ -15,7 +15,7 @@ const Elephant = struct {
     trunk: ?*Elephant = null,
     visited: bool = false,
 
-    // Elephant tail methods!
+    // Elephant 象鼻方法！
     pub fn getTail(self: *Elephant) *Elephant {
         return self.tail.?; // Remember, this means "orelse unreachable"
     }
@@ -24,7 +24,7 @@ const Elephant = struct {
         return (self.tail != null);
     }
 
-    // Your Elephant trunk methods go here!
+    // 在这里编写 Elephant 长鼻方法！
     // ---------------------------------------------------
 
     ???
@@ -36,7 +36,7 @@ const Elephant = struct {
     }
 
     pub fn print(self: *Elephant) void {
-        // Prints elephant letter and [v]isited
+        // 打印大象字母和是否已访问 [v]
         const v: u8 = if (self.visited) 'v' else ' ';
         std.debug.print("{u}{u} ", .{ self.letter, v });
     }
@@ -47,11 +47,11 @@ pub fn main() void {
     var elephantB = Elephant{ .letter = 'B' };
     var elephantC = Elephant{ .letter = 'C' };
 
-    // We link the elephants so that each tail "points" to the next.
+    // 连接大象，让每条象鼻都“指向”下一头大象。
     elephantA.tail = &elephantB;
     elephantB.tail = &elephantC;
 
-    // And link the elephants so that each trunk "points" to the previous.
+    // 再连接大象，让每条长鼻都“指向”上一头大象。
     elephantB.trunk = &elephantA;
     elephantC.trunk = &elephantB;
 
@@ -60,16 +60,16 @@ pub fn main() void {
     std.debug.print("\n", .{});
 }
 
-// This function visits all elephants twice, tails to trunks.
+// 此函数从象鼻到长鼻，访问每头大象两次。
 fn visitElephants(first_elephant: *Elephant) void {
     var e = first_elephant;
 
-    // We follow the tails!
+    // 沿着象鼻前进！
     while (true) {
         e.print();
         e.visit();
 
-        // This gets the next elephant or stops.
+        // 这里要么取得下一头大象，要么停止。
         if (e.hasTail()) {
             e = e.getTail();
         } else {
@@ -77,11 +77,11 @@ fn visitElephants(first_elephant: *Elephant) void {
         }
     }
 
-    // We follow the trunks!
+    // 沿着长鼻前进！
     while (true) {
         e.print();
 
-        // This gets the previous elephant or stops.
+        // 这里要么取得上一头大象，要么停止。
         if (e.hasTrunk()) {
             e = e.getTrunk();
         } else {

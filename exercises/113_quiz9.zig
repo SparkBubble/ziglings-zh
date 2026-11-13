@@ -1,31 +1,23 @@
 // ----------------------------------------------------------------------------
-// Quiz Time: Toggling, Setting, and Clearing Bits
+// 测验时间：翻转、设置和清除位
 // ----------------------------------------------------------------------------
 //
-// Another exciting thing about Zig is its suitability for embedded
-// programming. Your Zig code doesn't have to remain on your laptop; you can
-// also deploy your code to microcontrollers! This means you can write Zig to
-// drive your next robot or greenhouse climate control system! Ready to enter
-// the exciting world of embedded programming? Let's get started!
+// Zig 的另一个令人兴奋之处是它适合嵌入式编程。你的 Zig 代码不必只运行在笔记本电脑上，
+// 也可以部署到微控制器！这意味着你可以用 Zig 驱动机器人或温室气候控制系统。
+// 准备好进入令人兴奋的嵌入式编程世界了吗？开始吧！
 //
 // ----------------------------------------------------------------------------
-// Some Background
+// 背景知识
 // ----------------------------------------------------------------------------
 //
-// A common activity in microcontroller programming is setting and clearing
-// bits on input and output pins. This lets you control LEDs, sensors, motors
-// and more! In a previous exercise (100_bit_manipulation.zig) you learned how
-// to swap two bytes using the ^ (XOR - exclusive or) operator. This quiz will
-// test your knowledge of bit manipulation in Zig while giving you a taste of
-// what it's like to control registers in a real microcontroller. Included at
-// the end are some helper functions that demonstrate how we might make our
-// code a little more readable.
+// 微控制器编程中常见的操作是设置或清除输入输出引脚上的位，从而控制 LED、传感器、电机等。
+// 在之前的练习（100_bit_manipulation.zig）中，你学习了如何使用 ^（XOR，异或）运算符交换两个字节。
+// 本测验会检验你对 Zig 位操作的掌握情况，也让你体验控制真实微控制器寄存器的方式。
+// 最后还附有一些辅助函数，展示如何让代码更易读。
 //
-// Below is a pinout diagram for the famous ATmega328 AVR microcontroller used
-// as the primary microchip on popular microcontroller platforms like the
-// Arduino UNO.
+// 下图是著名的 ATmega328 AVR 微控制器引脚示意图，它是 Arduino UNO 等常见开发板的主要芯片。
 //
-//  ============ PINOUT DIAGRAM FOR ATMEGA328 MICROCONTROLLER ============
+//  ============ ATMEGA328 微控制器引脚示意图 ============
 //                                _____ _____
 //                               |     U     |
 //                 (RESET) PC6 --|  1     28 |-- PC5
@@ -47,21 +39,15 @@
 //                                    |
 //                                  PORTB
 //
-// Drawing inspiration from this diagram, we'll use the pins for PORTB as our
-// mental model for this quiz on bit manipulation. It should be noted that
-// in the following problems we are using ordinary variables, one of which we
-// have named PORTB, to simulate modifying the bits of real hardware registers.
-// But in actual microcontroller code, PORTB would be defined something like
-// this:
+// 受此图启发，我们将使用 PORTB 的引脚作为本测验位操作的思维模型。
+// 请注意，下面的问题使用普通变量（其中一个命名为 PORTB）来模拟修改真实硬件寄存器中的位。
+// 但在实际的微控制器代码中，PORTB 的定义会类似这样：
 //          pub const PORTB = @as(*volatile u8, @ptrFromInt(0x25));
 //
-// This lets the compiler know not to make any optimizations to PORTB so that
-// the IO pins are properly mapped to our code.
+// 这样可以告诉编译器不要对 PORTB 做优化，从而确保 I/O 引脚正确映射到代码中。
 //
-// NOTE : To keep things simple, the following problems are given using type
-// u4, so applying the output to PORTB would only affect the lower four pins
-// PB0..PB3. Of course, there is nothing to prevent you from swapping the u4
-// with a u8 so you can control all 8 of PORTB's IO pins.
+// 注意：为简单起见，下面的问题使用 u4 类型，因此将结果应用到 PORTB 时只会影响低四个引脚 PB0..PB3。
+// 当然，也可以将 u4 换成 u8，以控制 PORTB 的全部 8 个 I/O 引脚。
 
 const std = @import("std");
 const print = std.debug.print;
@@ -71,13 +57,11 @@ pub fn main() !void {
     var PORTB: u4 = 0b0000; // only 4 bits wide for simplicity
 
     // ------------------------------------------------------------------------
-    // Quiz
+    // 测验
     // ------------------------------------------------------------------------
 
-    // See if you can solve the following problems. The last two problems throw
-    // you a bit of a curve ball. Try solving them on your own. If you need
-    // help, scroll to the bottom of main to see some in depth explanations on
-    // toggling, setting, and clearing bits in Zig.
+    // 试试看能否解决以下问题。最后两题会稍微出乎意料，先尝试独立完成。
+    // 如果需要帮助，请滚动到 main 函数末尾，查看 Zig 中翻转、设置和清除位的详细说明。
 
     print("Toggle pins with XOR on PORTB\n", .{});
     print("-----------------------------\n", .{});
@@ -138,7 +122,7 @@ pub fn main() !void {
 }
 
 // ************************************************************************
-//                    IN-DEPTH EXPLANATIONS BELOW
+//                    详细说明见下方
 // ************************************************************************
 //
 //
@@ -152,203 +136,178 @@ pub fn main() !void {
 //
 //
 // ------------------------------------------------------------------------
-// Toggling bits with XOR:
+// 使用 XOR 翻转位：
 // ------------------------------------------------------------------------
-// XOR stands for "exclusive or". We can toggle bits with the ^ (XOR)
-// bitwise operator, like so:
+// XOR 是“异或”的缩写。可以像下面这样使用 ^（XOR）位运算符翻转位：
 //
 //
-// In order to output a 1, the logic of an XOR operation requires that the
-// two input bits are of different values. Therefore, 0 ^ 1 and 1 ^ 0 will
-// both yield a 1 but 0 ^ 0 and 1 ^ 1 will output 0. XOR's unique behavior
-// of outputting a 0 when both inputs are 1s is what makes it different from
-// the OR operator; it also gives us the ability to toggle bits by putting
-// 1s into our bitmask.
+// XOR 运算只有在两个输入位不同时才会输出 1。因此 0 ^ 1 和 1 ^ 0 都得到 1，
+// 而 0 ^ 0 和 1 ^ 1 都得到 0。两个输入都是 1 时输出 0，这是 XOR 与 OR 的区别；
+// 这一特性也让我们可以通过在位掩码中放入 1 来翻转对应位。
 //
-// - 1s in our bitmask operand, can be thought of as causing the
-//   corresponding bits in the other operand to flip to the opposite value.
-// - 0s cause no change.
+// - 位掩码操作数中的 1 会让另一个操作数对应的位翻转为相反值。
+// - 0 不会造成变化。
 //
-//                            The 0s in our bitmask preserve these values
-// -XOR op- ---expanded---    in the output.
+//                            位掩码中的 0 会在输出中保留这些值
+// -XOR 运算- ---展开---
 //            _______________/
 //           /       /
 //   1100   1   1   0   0
-// ^ 0101   0   1   0   1 (bitmask)
+// ^ 0101   0   1   0   1（位掩码）
 // ------   -   -   -   -
-// = 1001   1   0   0   1 <- This bit was already cleared.
+// = 1001   1   0   0   1 <- 这一位原本已经清零。
 //              \_______\
 //                       \
-//                         We can think of these bits having flipped
-//                         because of the presence of 1s in those columns
-//                         of our bitmask.
+//                         可以认为这些位因位掩码对应列中的 1 而发生翻转。
 //
-// Now let's take a look at setting bits with the | operator.
+// 现在看看如何使用 | 运算符设置位。
 //
 //
 //
 //
 //
 // ------------------------------------------------------------------------
-// Setting bits with OR:
+// 使用 OR 设置位：
 // ------------------------------------------------------------------------
-// We can set bits on PORTB with the | (OR) operator, like so:
+// 可以像这样使用 |（OR）运算符设置 PORTB 中的位：
 //
 // var PORTB: u4 = 0b1001;
 // PORTB = PORTB | 0b0010;
-// print("PORTB: {b:0>4}\n", .{PORTB}); // output: 1011
+// print("PORTB: {b:0>4}\n", .{PORTB}); // 输出：1011
 //
-// -OR op-  ---expanded---
-//                    _ Set only this bit.
+// -OR 运算- ---展开---
+//                    _ 只设置这一位。
 //                   /
 //   1001   1   0   0   1
-// | 0010   0   0   1   0 (bitmask)
+// | 0010   0   0   1   0（位掩码）
 // ------   -   -   -   -
 // = 1011   1   0   1   1
 //           \___\_______\
 //                        \
-//                          These bits remain untouched because OR-ing with
-//                          a 0 effects no change.
+//                          这些位保持不变，因为与 0 做 OR 不会改变结果。
 //
 // ------------------------------------------------------------------------
-// To create a bitmask like 0b0010 used above:
+// 要创建上面使用的 0b0010 位掩码：
 //
-// 1. First, shift the value 1 over one place with the bitwise << (shift
-// left) operator as indicated below:
+// 1. 首先，像下面这样使用 <<（左移）位运算符将数值 1 左移一位：
 //           1 << 0 -> 0001
-//           1 << 1 -> 0010  <-- Shift 1 one place to the left
+//           1 << 1 -> 0010  <-- 将 1 向左移动一位
 //           1 << 2 -> 0100
 //           1 << 3 -> 1000
 //
-// This allows us to rewrite the above code like this:
+// 这样就可以把上面的代码改写为：
 //
 // var PORTB: u4 = 0b1001;
 // PORTB = PORTB | (1 << 1);
-// print("PORTB: {b:0>4}\n", .{PORTB}); // output: 1011
+// print("PORTB: {b:0>4}\n", .{PORTB}); // 输出：1011
 //
-// Finally, as in the C language, Zig allows us to use the |= operator, so
-// we can rewrite our code again in an even more compact and idiomatic
-// form: PORTB |= (1 << 1)
+// 最后，和 C 语言一样，Zig 也支持 |= 运算符，因此可以将代码进一步简化为更符合习惯的形式：
+// PORTB |= (1 << 1)
 
-// So now we've covered how to toggle and set bits. What about clearing
-// them? Well, this is where Zig throws us a curve ball. Don't worry we'll
-// go through it step by step.
+// 我们已经介绍了如何翻转和设置位。那怎样清除位呢？这里 Zig 会带来一点意外，
+// 别担心，我们会一步步讲解。
 //
 //
 //
 //
 //
 // ------------------------------------------------------------------------
-// Clearing bits with AND and NOT:
+// 使用 AND 和 NOT 清除位：
 // ------------------------------------------------------------------------
-// We can clear bits with the & (AND) bitwise operator, like so:
+// 可以像这样使用 &（AND）位运算符清除位：
 
-// PORTB = 0b1110; // reset PORTB
+// PORTB = 0b1110; // 重置 PORTB
 // PORTB = PORTB & 0b1011;
-// print("PORTB: {b:0>4}\n", .{PORTB}); // output -> 1010
+// print("PORTB: {b:0>4}\n", .{PORTB}); // 输出 -> 1010
 //
-// - 0s clear bits when used in conjunction with a bitwise AND.
-// - 1s do nothing, thus preserving the original bits.
+// - 与位运算 AND 搭配时，0 会清除对应位。
+// - 1 不产生影响，因此保留原来的位。
 //
-// -AND op- ---expanded---
-//                __________ Clear only this bit.
+// -AND 运算- ---展开---
+//                __________ 只清除此位。
 //               /
 //   1110   1   1   1   0
-// & 1011   1   0   1   1 (bitmask)
+// & 1011   1   0   1   1（位掩码）
 // ------   -   -   -   -
-// = 1010   1   0   1   0 <- This bit was already cleared.
+// = 1010   1   0   1   0 <- 这一位原本已经清零。
 //           \_______\
 //                    \
-//                      These bits remain untouched because AND-ing with a
-//                      1 preserves the original bit value whether 0 or 1.
+//                      这些位保持不变，因为与 1 做 AND 会保留原位值，无论它是 0 还是 1。
 //
 // ------------------------------------------------------------------------
-// We can use the ~ (NOT) operator to easily create a bitmask like 1011:
+// 可以使用 ~（NOT）运算符轻松创建类似 1011 的位掩码：
 //
-//  1. First, shift the value 1 over two places with the bit-wise << (shift
-//     left) operator as indicated below:
+//  1. 首先，像下面这样使用 <<（左移）位运算符将数值 1 左移两位：
 //          1 << 0 -> 0001
 //          1 << 1 -> 0010
-//          1 << 2 -> 0100 <- The 1 has been shifted two places to the left
+//          1 << 2 -> 0100 <- 1 已向左移动两位
 //          1 << 3 -> 1000
 //
-//  2. The second step in creating our bitmask is to invert the bits
+//  2. 创建位掩码的第二步是反转这些位
 //          ~0100 -> 1011
-//     in C we would write this as:
+//     在 C 中会写成：
 //          ~(1 << 2) -> 1011
 //
-//     But if we try to compile ~(1 << 2) in Zig, we'll get an error:
-//          unable to perform binary not operation on type 'comptime_int'
+//     但如果在 Zig 中编译 ~(1 << 2)，就会报错：
+//          无法对类型 'comptime_int' 执行二进制 NOT 运算
 //
-//     Before Zig can invert our bits, it needs to know the number of
-//     bits it's being asked to invert.
+//     在 Zig 反转位之前，需要知道要反转的位数。
 //
-//     We do this with the @as (cast as) built-in like this:
+//     可以像这样使用 @as（转换为）内置函数：
 //          @as(u4, 1 << 2) -> 0100
 //
-//     Finally, we can invert our new mask by placing the NOT ~ operator
-//     before our expression, like this:
+//     最后，可以像这样在表达式前放置 NOT 运算符 ~，反转新掩码：
 //          ~@as(u4, 1 << 2) -> 1011
 //
-//     If you are offput by the fact that you can't simply invert bits like
-//     you can in languages such as C without casting to a particular size
-//     of integer, you're not alone. However, this is actually another
-//     instance where Zig is really helpful because it protects you from
-//     difficult to debug integer overflow bugs that can have you tearing
-//     your hair out. In the interest of keeping things sane, Zig requires
-//     you simply to tell it the size of number you are inverting. In the
-//     words of Andrew Kelley, "If you want to invert the bits of an
-//     integer, zig has to know how many bits there are."
+//     如果你觉得 Zig 不像 C 那样允许直接反转位、而必须先转换为特定大小的整数很不方便，
+//     你并不孤单。不过这也体现了 Zig 的帮助：它能避免难以调试、令人头疼的整数溢出错误。
+//     为了让行为明确，Zig 要求你指定正在反转的数值有多少位。引用 Andrew Kelley 的话：
+//     “如果要反转整数的位，zig 必须知道它有多少位。”
 //
-//     For more insight into the Zig team's position on why the language
-//     takes the approach it does with the ~ operator, take a look at
-//     Andrew's comments on the following github issue:
+//     想更深入了解 Zig 团队为何采用这种 ~ 运算符设计，请查看 Andrew 在以下 GitHub issue 中的评论：
 //     https://github.com/ziglang/zig/issues/1382#issuecomment-414459529
 //
-// Whew, so after all that what we end up with is:
+// 呼，经过这些步骤，最终得到：
 //          PORTB = PORTB & ~@as(u4, 1 << 2);
 //
-// We can shorten this with the &= combined AND and assignment operator,
-// which applies the AND operator on PORTB and then reassigns PORTB. Here's
-// what that looks like:
+// 可以用 &= 这个 AND 与赋值的组合运算符简化，它会对 PORTB 执行 AND 后再赋回 PORTB：
 //          PORTB &= ~@as(u4, 1 << 2);
 //
 
 // ------------------------------------------------------------------------
-// Conclusion
+// 总结
 // ------------------------------------------------------------------------
 //
-// While the examples in this quiz have used only 4-bit wide variables,
-// working with 8 bits is no different. Here's an example where we set
-// every other bit beginning with the two's place:
+// 虽然本测验示例只使用 4 位变量，但处理 8 位没有区别。
+// 下面的例子从 2 的位开始，每隔一位设置一个位：
 
 // var PORTD: u8 = 0b0000_0000;
 // print("PORTD: {b:0>8}\n", .{PORTD});
 // PORTD |= (1 << 1);
 // PORTD = setBit(u8, PORTD, 3);
 // PORTD |= (1 << 5) | (1 << 7);
-// print("PORTD: {b:0>8} // set every other bit\n", .{PORTD});
+// print("PORTD: {b:0>8} // 每隔一位设置一个位\n", .{PORTD});
 // PORTD = ~PORTD;
-// print("PORTD: {b:0>8} // bits flipped with NOT (~)\n", .{PORTD});
+// print("PORTD: {b:0>8} // 使用 NOT (~) 翻转位\n", .{PORTD});
 // newline();
 //
-// // Here we clear every other bit beginning with the two's place.
+// // 这里从 2 的位开始，每隔一位清除一个位。
 //
 // PORTD = 0b1111_1111;
 // print("PORTD: {b:0>8}\n", .{PORTD});
 // PORTD &= ~@as(u8, 1 << 1);
 // PORTD = clearBit(u8, PORTD, 3);
 // PORTD &= ~@as(u8, (1 << 5) | (1 << 7));
-// print("PORTD: {b:0>8} // clear every other bit\n", .{PORTD});
+// print("PORTD: {b:0>8} // 每隔一位清除一个位\n", .{PORTD});
 // PORTD = ~PORTD;
-// print("PORTD: {b:0>8} // bits flipped with NOT (~)\n", .{PORTD});
+// print("PORTD: {b:0>8} // 使用 NOT (~) 翻转位\n", .{PORTD});
 // newline();
 
 // ----------------------------------------------------------------------------
-// Here are some helper functions for manipulating bits
+// 以下是一些用于位操作的辅助函数
 // ----------------------------------------------------------------------------
 
-// Functions for setting, clearing, and toggling a single bit
+// 设置、清除和翻转单个位的函数
 fn setBit(comptime T: type, byte: T, comptime bit_pos: T) !T {
     return byte | (1 << bit_pos);
 }
@@ -377,8 +336,7 @@ test "toggleBit" {
 }
 
 // ----------------------------------------------------------------------------
-// Some additional functions for setting, clearing, and toggling multiple bits
-// at once with a tuple because, hey, why not?
+// 还有一些函数可以通过元组一次设置、清除或翻转多个位，何乐而不为呢？
 // ----------------------------------------------------------------------------
 //
 
@@ -465,7 +423,7 @@ test "toggleBits" {
 }
 
 // ----------------------------------------------------------------------------
-// Utility functions
+// 工具函数
 // ----------------------------------------------------------------------------
 
 fn newline() void {

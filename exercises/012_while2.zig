@@ -1,35 +1,32 @@
 //
-// Zig 'while' statements can have an optional 'continue expression'
-// which runs every time the while loop continues (either at the
-// end of the loop or when an explicit 'continue' is invoked - we'll
-// try those out next):
+// Zig 的 'while' 语句可以带一个可选的“继续表达式”，每次循环继续时
+// 都会执行它（无论是在循环体末尾，还是显式执行 'continue' 时；
+// 我们接下来会试试）：
 //
 //     while (condition) : (continue expression) {
 //         ...
 //     }
 //
-// Example:
+// 示例：
 //
 //     var foo = 2;
 //     while (foo < 10) : (foo += 2) {
-//         // Do something with even numbers less than 10...
+//         // 对小于 10 的偶数做些处理……
 //     }
 //
-// See if you can re-write the last exercise using a continue
-// expression:
+// 试试看能否用继续表达式重写上一个练习：
 //
 const std = @import("std");
 
 pub fn main() void {
     var n: u32 = 2;
 
-    // Please set the continue expression so that we get the desired
-    // results in the print statement below.
+    // 请设置继续表达式，让下面的打印语句得到预期结果。
     while (n < 1000) : ??? {
-        // Print the current number
+        // 打印当前数字
         std.debug.print("{} ", .{n});
     }
 
-    // As in the last exercise, we want this to result in "n=1024"
+    // 和上一个练习一样，我们希望结果为 "n=1024"
     std.debug.print("n={}\n", .{n});
 }

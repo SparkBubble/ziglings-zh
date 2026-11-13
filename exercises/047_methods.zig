@@ -1,10 +1,10 @@
 //
-// Help! Evil alien creatures have hidden eggs all over the Earth
-// and they're starting to hatch!
+// 救命！邪恶的外星生物把蛋藏在地球各处，
+// 现在这些蛋开始孵化了！
 //
-// Before you jump into battle, you'll need to know three things:
+// 投身战斗前，你需要了解三件事：
 //
-// 1. You can attach functions to structs (and other "type definitions"):
+// 1. 可以将函数附加到结构体（以及其他“类型定义”）上：
 //
 //     const Foo = struct{
 //         pub fn hello() void {
@@ -12,15 +12,13 @@
 //         }
 //     };
 //
-// 2. A function that is a member of a struct is "namespaced" within
-//    that struct and is called by specifying the "namespace" and then
-//    using the "dot syntax":
+// 2. 结构体成员函数位于该结构体的“命名空间”中，调用时先写“命名空间”，
+//    再使用“点号语法”：
 //
 //     Foo.hello();
 //
-// 3. The NEAT feature of these functions is that if their first argument
-//    is an instance of the struct (or a pointer to one) then we can use
-//    the instance as the namespace instead of the type:
+// 3. 这些函数有个很棒的特性：如果第一个参数是结构体实例（或指向它的指针），
+//    就可以用该实例代替类型作为命名空间：
 //
 //     const Bar = struct{
 //         pub fn a(self: Bar) void {}
@@ -33,40 +31,34 @@
 //    bar.b(3) // is equivalent to Bar.b(&bar, 3)
 //    bar.c() // is equivalent to Bar.c(&bar)
 //
-//    Notice that the name of the parameter doesn't matter. Some use
-//    self, others use a lowercase version of the type name, but feel
-//    free to use whatever is most appropriate.
+//    注意，参数名称并不重要。有些人用 self，有些人用类型名称的小写形式，
+//    你也可以按实际情况自行命名。
 //
-//    "But hold on," you say, eyeing a() and b() suspiciously, "why
-//    does one take 'self' and another take '*self'?" Sharp eye!
+//    “等等，”你疑惑地看着 a() 和 b()，“为什么一个接受 'self'，另一个接受 '*self'？”
+//    观察得很仔细！
 //
-//    It all comes down to a single question: does the function need
-//    to CHANGE the struct?
+//    归根结底只需问一个问题：函数需要修改这个结构体吗？
 //
-//      * Needs to change it?  Take a pointer (*Bar). Without it you'd
-//        be scribbling on a COPY, and your changes would evaporate the
-//        instant the function returns. Poof.
-//      * Only reads it?  Plain Bar is just fine.
-//        (For a big, bulky struct you might still write *const Bar to
-//        avoid copying it around, but for small ones a copy is cheap.)
+//      * 需要修改它？接受指针 (*Bar)。否则你修改的只是副本，函数一返回，
+//        改动就消失了，噗。
+//      * 只读取它？直接用 Bar 就可以。
+//       （结构体很大时仍可用 *const Bar 避免复制；小结构体复制成本很低。）
 //
-//    You'll see this below: zap() takes 'self: HeatRay' by value
-//    because it only reads the ray's damage, but it takes the alien
-//    as '*Alien' because zapping is supposed to HURT - and that means
-//    changing the alien's health for real, not on a throwaway copy.
+//    下面会看到：zap() 按值接受 'self: HeatRay'，因为它只读取射线伤害；
+//    但它以 '*Alien' 接受外星人，因为射线应该造成伤害，也就是要真正修改
+//    外星人的生命值，而不是改一个临时副本。
 //
-// Okay, you're armed.
+// 好了，你已经全副武装。
 //
-// Now, please zap the alien structs until they're all gone or
-// the Earth will be doomed!
+// 现在请用射线消灭所有外星人，否则地球就要完蛋了！
 //
 const std = @import("std");
 
-// Look at this hideous Alien struct. Know your enemy!
+// 看看这个丑陋的 Alien 结构体。知己知彼！
 const Alien = struct {
     health: u8,
 
-    // We hate this method:
+    // 我们讨厌这个方法：
     pub fn hatch(strength: u8) Alien {
         return Alien{
             .health = strength * 5,
@@ -74,18 +66,18 @@ const Alien = struct {
     }
 };
 
-// Your trusty weapon. Zap those aliens!
+// 你可靠的武器。用它射击外星人！
 const HeatRay = struct {
     damage: u8,
 
-    // We love this method:
+    // 我们喜欢这个方法：
     pub fn zap(self: HeatRay, alien: *Alien) void {
         alien.health -= if (self.damage >= alien.health) alien.health else self.damage;
     }
 };
 
 pub fn main() void {
-    // Look at all of these aliens of various strengths!
+    // 看看这些实力各异的外星人！
     var aliens = [_]Alien{
         Alien.hatch(2),
         Alien.hatch(1),
@@ -98,17 +90,17 @@ pub fn main() void {
     var aliens_alive = aliens.len;
     const heat_ray = HeatRay{ .damage = 7 }; // We've been given a heat ray weapon.
 
-    // We'll keep checking to see if we've killed all the aliens yet.
+    // 我们会持续检查是否已经消灭所有外星人。
     while (aliens_alive > 0) {
         aliens_alive = 0;
 
-        // Loop through every alien by reference (* makes a pointer capture value)
+        // 通过引用遍历每个外星人（* 会将捕获值设为指针）
         for (&aliens) |*alien| {
 
-            // *** Zap the alien with the heat ray here! ***
+            // *** 在这里用热射线攻击外星人！***
             ???.zap(???);
 
-            // If the alien's health is still above 0, it's still alive.
+            // 如果外星人的生命值仍大于 0，它就还活着。
             if (alien.health > 0) aliens_alive += 1;
         }
 

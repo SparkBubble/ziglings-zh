@@ -1,121 +1,85 @@
 //
-// The functionality of the standard library is becoming increasingly
-// important in Zig. First of all, it is helpful to take a look at how
-// the individual functions are implemented. Because this is wonderfully
-// suitable as a template for your own functions. In addition, these
-// standard functions are part of the basic configuration of Zig.
+// 标准库功能在 Zig 中越来越重要。首先，了解各个函数的实现方式很有帮助，
+// 因为它们可以很好地作为自定义函数的范例。此外，这些标准函数也是 Zig 基础环境的一部分。
 //
-// This means that they are always available on every system.
-// Therefore it is worthwhile to deal with them also in Ziglings.
-// It's a great way to learn important skills. For example, it is
-// often necessary to process large amounts of data from files.
-// And for this sequential reading and processing, Zig provides some
-// useful functions, which we will take a closer look at in the coming
-// exercises.
+// 也就是说，它们在每个系统上都可用。因此值得在 Ziglings 中学习它们，
+// 这是掌握重要技能的好方法。例如，我们经常需要处理文件中的大量数据。
+// 对于这种顺序读取和处理，Zig 提供了一些实用函数，我们会在后续练习中仔细了解。
 //
-// A nice example of this has been published on the Zig homepage,
-// replacing the somewhat dusty 'Hello world!'
+// Zig 官网发布了一个很好的例子，取代了有些老套的 'Hello world!'。
 //
-// Nothing against 'Hello world!', but it just doesn't do justice
-// to the elegance of Zig and that's a pity, if someone takes a short,
-// first look at the homepage and doesn't get 'enchanted'. And for that
-// the present example is simply better suited and we will therefore
-// use it as an introduction to tokenizing, because it is wonderfully
-// suited to understand the basic principles.
+// 我们并非不喜欢 'Hello world!'，只是它无法充分展现 Zig 的优雅。
+// 如果有人初次浏览官网时没能因此着迷，就太可惜了。这个例子更合适，
+// 因此我们用它来引入分词，因为它非常适合说明基本原理。
 //
-// In the following exercises we will also read and process data from
-// large files, it will then be clearer to you how useful all this is.
+// 后续练习还会读取并处理大型文件中的数据，到时你会更清楚这些功能有多实用。
 //
-// Let's start with the analysis of the example from the Zig homepage
-// and explain the most important things.
+// 先分析 Zig 官网的示例，并解释其中最重要的部分。
 //
 //    const std = @import("std");
 //
-//    // Here a function from the Standard library is defined,
-//    // which transfers numbers from a string into the respective
-//    // integer values.
+//    // 这里定义了一个标准库函数，用于将字符串中的数字转换为相应的整数值。
 //    const parseInt = std.fmt.parseInt;
 //
-//    // Defining a test case
+//    // 定义测试用例
 //    test "parse integers" {
 //
-//        // Four numbers are passed in a string.
-//        // Please note that the individual values are separated
-//        // either by a space or a comma.
+//        // 字符串中传入了四个数字。
+//        // 注意，各个值之间用空格或逗号分隔。
 //        const input = "123 67 89,99";
 //
-//        // In order to be able to process the input values,
-//        // memory is required. An allocator is defined here for
-//        // this purpose.
+//        // 处理输入值需要内存，因此这里定义了一个分配器。
 //        const gpa = std.testing.allocator;
 //
-//        // An array into which the numbers are stored is initialized.
+//        // 初始化一个用于存放数字的数组。
 //        var list: std.ArrayList(u32) = .empty;
 //
-//        // This way you can never forget what is urgently needed
-//        // and the compiler doesn't grumble either.
+//        // 这样就不会忘记必须进行的清理，编译器也不会抱怨。
 //        defer list.deinit(gpa);
 //
-//        // Now it gets exciting:
-//        // A standard tokenizer is called (Zig has several) and
-//        // used to locate the positions of the respective separators
-//        // (we remember, space and comma) and pass them to an iterator.
+//        // 接下来是关键部分：调用标准分词器（Zig 提供了多个），
+//        // 查找各个分隔符（还记得吗，是空格和逗号）的位置，并将结果交给迭代器。
 //        var it = std.mem.tokenizeAny(u8, input, " ,");
 //
-//        // The iterator can now be processed in a loop and the
-//        // individual numbers can be transferred.
+//        // 现在可以在循环中处理迭代器，并逐个取出数字。
 //        while (it.next()) |num| {
-//            // But be careful: The numbers are still only available
-//            // as strings. This is where the integer parser comes
-//            // into play, converting them into real integer values.
+//            // 但要注意：这些数字目前仍是字符串。
+//            // 此时整数解析器就派上用场了，它会将字符串转换为真正的整数值。
 //            const n = try parseInt(u32, num, 10);
 //
-//            // Finally the individual values are stored in the array.
+//            // 最后，将各个值存入数组。
 //            try list.append(gpa, n);
 //        }
 //
-//        // For the subsequent test, a second static array is created,
-//        // which is directly filled with the expected values.
+//        // 为了进行后续测试，创建第二个静态数组，并直接填入预期值。
 //        const expected = [_]u32{ 123, 67, 89, 99 };
 //
-//        // Now the numbers converted from the string can be compared
-//        // with the expected ones, so that the test is completed
-//        // successfully.
+//        // 现在可以将从字符串转换出的数字与预期值比较，
+//        // 从而成功完成测试。
 //        for (expected, list.items) |exp, actual| {
 //            try std.testing.expectEqual(exp, actual);
 //        }
 //    }
 //
-// So much for the example from the homepage.
-// Let's summarize the basic steps again:
+// 官网示例就介绍到这里。我们再总结一下基本步骤：
 //
-// - We have a set of data in sequential order, separated from each other
-//   by means of various characters.
+// - 有一组按顺序排列的数据，各项之间由不同字符分隔。
 //
-// - For further processing, for example in an array, this data must be
-//   read in, separated and, if necessary, converted into the target format.
+// - 为了进一步处理（例如存入数组），必须读取这些数据、分隔各项，并在必要时转换为目标格式。
 //
-// - We need a buffer that is large enough to hold the data.
+// - 需要一个足够大的缓冲区来存放数据。
 //
-// - This buffer can be created either statically at compile time, if the
-//   amount of data is already known, or dynamically at runtime by using
-//   a memory allocator.
+// - 如果数据量已知，可以在编译时静态创建缓冲区；否则可以在运行时使用内存分配器动态创建。
 //
-// - The data are divided by means of Tokenizer at the respective
-//   separators and stored in the reserved memory. This usually also
-//   includes conversion to the target format.
+// - 使用分词器按相应分隔符拆分数据，并存入预留内存中；通常还要转换为目标格式。
 //
-// - Now the data can be conveniently processed further in the correct format.
+// - 现在就可以用正确格式方便地进一步处理数据。
 //
-// These steps are basically always the same.
-// Whether the data is read from a file or entered by the user via the
-// keyboard, for example, is irrelevant. Only subtleties are distinguished
-// and that's why Zig has different tokenizers. But more about this in
-// later exercises.
+// 这些步骤基本上总是相同的。数据来自文件，还是由用户通过键盘输入，并不重要。
+// 区别只在细节上，因此 Zig 提供了不同的分词器。后续练习会进一步介绍。
 //
-// Now we also want to write a small program to tokenize some data,
-// after all we need some practice. Suppose we want to count the words
-// of this little poem:
+// 现在我们也来编写一个小程序对数据分词，毕竟需要练习。
+// 假设我们想统计这首小诗中的单词数：
 //
 //      My name is Ozymandias, King of Kings;
 //      Look on my Works, ye Mighty, and despair!
@@ -127,22 +91,22 @@ const print = std.debug.print;
 
 pub fn main() !void {
 
-    // our input
+    // 输入内容
     const poem =
         \\My name is Ozymandias, King of Kings;
         \\Look on my Works, ye Mighty, and despair!
     ;
 
-    // now the tokenizer, but what do we need here?
+    // 现在需要分词器，但这里应该使用哪个？
     var it = std.mem.tokenizeAny(u8, poem, ???);
 
-    // print all words and count them
+    // 打印所有单词并统计数量
     var cnt: usize = 0;
     while (it.next()) |word| {
         cnt += 1;
         print("{s}\n", .{word});
     }
 
-    // print the result
+    // 打印结果
     print("This little poem has {d} words!\n", .{cnt});
 }

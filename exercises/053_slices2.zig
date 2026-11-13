@@ -1,9 +1,6 @@
 //
-// You are perhaps tempted to try slices on strings? They're arrays of
-// u8 characters after all, right? Slices on strings work great.
-// There's just one catch: don't forget that Zig string literals are
-// immutable (const) values. So we need to change the type of slice
-// from:
+// 你可能想对字符串使用切片？毕竟它们是 u8 字符数组，对吧？字符串切片很好用。
+// 但有一点要注意：Zig 字符串字面量是不可变（const）值。因此切片类型需要从：
 //
 //     var foo: []u8 = "foobar"[0..3];
 //
@@ -11,7 +8,7 @@
 //
 //     var foo: []const u8 = "foobar"[0..3];
 //
-// See if you can fix this Zero Wing-inspired phrase descrambler:
+// 试试看能否修好这个受 Zero Wing 启发的短语解码器：
 const std = @import("std");
 
 pub fn main() void {

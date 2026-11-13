@@ -1,17 +1,15 @@
 //
-// Another common problem is a block of code that could exit in multiple
-// places due to an error - but that needs to do something before it
-// exits (typically to clean up after itself).
+// 另一个常见问题是：代码块可能因错误从多个位置退出，
+// 但退出前必须执行一些操作（通常是清理工作）。
 //
-// An "errdefer" is a defer that only runs if the block exits with an error:
+// "errdefer" 是一种只有在代码块因错误退出时才会执行的 defer：
 //
 //     {
 //         errdefer cleanup();
 //         try canFail();
 //     }
 //
-// The cleanup() function is called ONLY if the "try" statement returns an
-// error produced by canFail().
+// 只有当 "try" 语句返回 canFail() 产生的错误时，才会调用 cleanup()。
 //
 const std = @import("std");
 
@@ -20,7 +18,7 @@ var counter: u32 = 0;
 const MyErr = error{ GetFail, IncFail };
 
 pub fn main() void {
-    // We simply quit the entire program if we fail to get a number:
+    // 如果无法得到数字，我们就直接退出整个程序：
     const a: u32 = makeNumber() catch return;
     const b: u32 = makeNumber() catch return;
 
@@ -30,8 +28,7 @@ pub fn main() void {
 fn makeNumber() MyErr!u32 {
     std.debug.print("Getting number...", .{});
 
-    // Please make the "failed" message print ONLY if the makeNumber()
-    // function exits with an error:
+    // 请让 "failed" 消息仅在 makeNumber() 函数因错误退出时打印：
     std.debug.print("failed!\n", .{});
 
     var num = try getNumber(); // <-- This could fail!
@@ -44,15 +41,15 @@ fn makeNumber() MyErr!u32 {
 }
 
 fn getNumber() MyErr!u32 {
-    // I _could_ fail...but I don't!
+    // 我_可能_会失败……但我不会！
     return 4;
 }
 
 fn increaseNumber(n: u32) MyErr!u32 {
-    // I fail after the first time you run me!
+    // 第一次运行之后我就会失败！
     if (counter > 0) return MyErr.IncFail;
 
-    // Sneaky, weird global stuff.
+    // 隐蔽又奇怪的全局内容。
     counter += 1;
 
     return n + 1;

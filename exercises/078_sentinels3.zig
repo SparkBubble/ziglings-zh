@@ -1,26 +1,22 @@
 //
-// We were able to get a printable string out of a many-item
-// pointer by using a slice to assert a specific length.
+// 我们通过切片指定长度，成功从多项目指针得到可打印的字符串。
 //
-// But can we ever GO BACK to a sentinel-terminated pointer
-// after we've "lost" the sentinel in a coercion?
+// 但在强制转换“丢失”哨兵后，我们还能回到以哨兵结尾的指针吗？
 //
-// Yes, we can. Zig's @ptrCast() builtin can do this. Check out
-// the signature:
+// 可以。Zig 的内置函数 @ptrCast() 能做到这一点。看它的签名：
 //
 //     @ptrCast(value: anytype) anytype
 //
-// See if you can use it to solve the same many-item pointer
-// problem, but without needing a length!
+// 试试看能否用它解决同一个多项目指针问题，而且不需要指定长度！
 //
 const print = @import("std").debug.print;
 
 pub fn main() void {
-    // Again, we've coerced the sentinel-terminated string to a
-    // many-item pointer, which has no length or sentinel.
+    // 我们再次将以哨兵结尾的字符串强制转换为多项目指针，
+    // 这样就没有长度或哨兵信息了。
     const data: [*]const u8 = "Weird Data!";
 
-    // Please cast 'data' to 'printable':
+    // 请将 'data' 转换为 'printable'：
     const printable: [*:0]const u8 = ???;
 
     print("{s}\n", .{printable});

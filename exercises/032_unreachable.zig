@@ -1,7 +1,6 @@
 //
-// Zig has an "unreachable" statement. Use it when you want to tell the
-// compiler that a branch of code should never be executed and that the
-// mere act of reaching it is an error.
+// Zig 有一个 "unreachable" 语句。当你想告诉编译器某个代码分支绝不应执行，
+// 而一旦执行到那里就意味着出错时，可以使用它。
 //
 //     if (true) {
 //         ...
@@ -9,13 +8,11 @@
 //         unreachable;
 //     }
 //
-// Here we've made a little virtual machine that performs mathematical
-// operations on a single numeric value. It looks great but there's one
-// little problem: the switch statement doesn't cover every possible
-// value of a u8 number!
+// 这里我们做了一个小型虚拟机，对单个数值执行数学运算。
+// 看起来不错，但有个小问题：switch 语句没有涵盖 u8 数值的所有可能值！
 //
-// WE know there are only three operations but Zig doesn't. Use the
-// unreachable statement to make the switch complete. Or ELSE. :-)
+// 我们知道只有三种操作，但 Zig 并不知道。请用 unreachable 补全 switch。
+// 或者使用 ELSE。:-)
 //
 const std = @import("std");
 

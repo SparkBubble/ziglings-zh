@@ -1,72 +1,42 @@
 //
-// Now that we are familiar with the principles of multi-threading,
-// let's boldly venture into a practical example from mathematics.
-// We will determine the circle number PI with sufficient accuracy.
+// 了解多线程原理后，我们大胆尝试一个数学应用示例，
+// 以足够的精度计算圆周率 PI。
 //
-// There are different methods for this, and some of them are several
-// hundred years old. For us, the dusty procedures are surprisingly well
-// suited to our exercise. Because the mathematicians of the time didn't
-// have fancy computers with which we can calculate something like this
-// in seconds today.
-// Whereby, of course, it depends on the accuracy, i.e. how many digits
-// after the decimal point we are interested in.
-// But these old procedures can still be tackled with paper and pencil,
-// which is why they are easier for us to understand.
-// At least for me. ;-)
+// 有多种计算方法，其中一些已有数百年历史。对我们来说，这些古老方法出奇地适合本练习，
+// 因为当年的数学家没有如今这种能在几秒内完成计算的高级电脑。
+// 当然，速度取决于精度，也就是我们关心小数点后多少位。
+// 但这些旧方法仍可以用纸笔计算，因此更容易理解。至少对我来说是这样。;-)
 //
-// So let's take a mental leap back a few years.
-// Around 1672 (if you want to know and read about it in detail, you can
-// do so on Wikipedia, for example), various mathematicians once again
-// discovered a method of approaching the circle number PI.
-// There were the Scottish mathematician Gregory and the German
-// mathematician Leibniz, and even a few hundred years earlier the Indian
-// mathematician Madhava. All of them independently developed the same
-// formula, which was published by Leibniz in 1682 in the journal
-// "Acta Eruditorum".
-// This is why this method has become known as the "Leibniz series",
-// although the other names are also often used today.
-// We will not go into the formula and its derivation in detail, but
-// will deal with the series straight away:
+// 让我们把思绪拉回几百年前。大约在 1672 年（详情可自行查阅维基百科），
+// 多位数学家再次发现了一种逼近圆周率 PI 的方法。苏格兰数学家 Gregory、
+// 德国数学家 Leibniz，以及更早几百年的印度数学家 Madhava，
+// 都独立推导出了同一个公式。Leibniz 于 1682 年在《Acta Eruditorum》期刊上发表了它。
+// 因此这种方法被称为“Leibniz 级数”，尽管如今也常使用其他名称。
+// 我们不详细讨论公式及其推导，直接来看级数：
 //
 //          4     4     4     4     4
 //  PI = + --- - --- + --- - --- + --- ...
 //          1     3     5     7     9
 //
-// As you can clearly see, the series starts with the whole number 4 and
-// approaches the circle number by subtracting and adding smaller and
-// smaller parts of 4. Pretty much everyone has learned PI = 3.14 at school,
-// but very few people remember other digits, and this is rarely necessary
-// in practice. Because either you don't need the precision, or you use a
-// calculator in which the number is stored as a very precise constant.
-// But at some point this constant was calculated and we are doing the same
-// now. The question at this point is, how many partial values do we have
-// to calculate for which accuracy?
+// 可以清楚地看到，级数从整数 4 开始，通过不断加减越来越小的 4 的部分来逼近圆周率。
+// 几乎每个人在学校都学过 PI = 3.14，但很少有人记得更多位数，实际中也很少需要，
+// 因为要么不需要那么高的精度，要么计算器里已经存有精确常数。
+// 不过这个常数终究是经过计算得到的，现在我们也来计算。问题是：
+// 要达到某种精度，需要计算多少个部分项？
 //
-// The answer is chewing, to get 8 digits after the decimal point we need
-// 1,000,000,000 partial values. And for each additional digit we have to
-// add a zero.
-// Even fast computers - and I mean really fast computers - get a bit warmer
-// on the CPU when it comes to a large number of digits. But 8 digits are
-// enough for us for now, because we want to understand the principle and
-// nothing more, right?
+// 答案令人咋舌：要得到小数点后 8 位，需要 1,000,000,000 个部分项。
+// 每增加一位，还得再多计算一个数量级。
+// 即便是非常快的电脑，计算大量位数时 CPU 也会发热。不过现在 8 位就够了，
+// 我们只想理解原理，对吧？
 //
-// As we have already discovered, the Leibniz series is a series with a
-// fixed distance of 2 between the individual partial values. This makes
-// it easy to apply a simple loop to it, because if we start with n = 1
-// (which is not necessarily useful now) we always have to add 2 in each
-// round.
-// But wait! The partial values are alternately added and subtracted.
-// This could also be achieved with one loop, but not very elegantly.
-// It also makes sense to split this between two CPUs, one calculates
-// the positive values and the other the negative values. And so we can
-// simply start two threads and add everything up at the end and we're
-// done.
-// We just have to remember that if only the positive or negative values
-// are calculated, the distances are twice as large, i.e. 4.
+// 如前所见，Leibniz 级数中相邻部分项的间隔固定为 2，因此可以用简单循环计算：
+// 从 n = 1 开始，每轮增加 2（虽然这里未必有用）。
+// 但是等等！部分项是交替相加和相减的。虽然一个循环也能做到，但不够优雅。
+// 也可以分给两个 CPU，一个计算正项，一个计算负项。这样只需启动两个线程，
+// 最后将结果相加即可。要记住，如果只计算正项或负项，间隔会加倍，也就是 4。
 //
-// So that the whole thing has a real learning effect, the first thread
-// call is specified and you have to make the second.
-// But don't worry, it will work out. :-)
+// 为了达到真正的学习效果，第一个线程调用已经写好，第二个需要你来完成。
+// 别担心，你能做到的。:-)
 //
 const std = @import("std");
 
@@ -77,15 +47,15 @@ pub fn main() !void {
     var pi_minus: f64 = 0;
 
     {
-        // First thread to calculate the plus numbers.
+        // 第一个线程，用于计算正项。
         const handle1 = try std.Thread.spawn(.{}, thread_pi, .{ &pi_plus, 1, count });
         defer handle1.join();
 
-        // Second thread to calculate the minus numbers.
+        // 第二个线程，用于计算负项。
         ???
     }
 
-    // Here we add up the results.
+    // 在这里汇总结果。
     std.debug.print("PI ≈ {d:.8} (error = {e:.1})\n", .{ pi_plus - pi_minus, std.math.pi - (pi_plus - pi_minus) });
 }
 
@@ -95,23 +65,17 @@ fn thread_pi(pi: *f64, begin: u64, count: u64) !void {
         pi.* += term;
     }
 }
-// If you wish, you can increase the number of loop passes, which
-// improves the number of digits.
+// 你可以增加循环次数，以提高结果的精度。
 //
-// But be careful:
-// In order for parallel processing to really show its strengths,
-// the compiler must be given the "-O ReleaseFast" flag when it
-// is created. Otherwise the debug functions slow down the speed
-// to such an extent that seconds become minutes during execution.
+// 但请注意：要真正发挥并行处理的优势，编译时必须传入 "-O ReleaseFast" 标志。
+// 否则调试功能会大幅降低速度，让几秒钟的执行变成几分钟。
 //
-// You can use the following command to build and run this
-// exercise with the "ReleaseFast" flag:
+// 可以使用以下命令以 "ReleaseFast" 模式构建并运行本练习：
 //
 //      zig run exercises/108_threading2.zig -O ReleaseFast
 //
-// And you should remove the formatting restriction in "print",
-// otherwise you will not be able to see the additional digits.
+// 还应移除 "print" 中的格式限制，否则看不到额外的小数位。
 //
-// If count = 2_500_000_000_000, you should see the following:
+// 如果 count = 2_500_000_000_000，应该会看到以下结果：
 // 3.141592653589
-// (after waiting on the order of 1000 seconds, or 17 minutes)
+//（大约需要等待 1000 秒，也就是 17 分钟）

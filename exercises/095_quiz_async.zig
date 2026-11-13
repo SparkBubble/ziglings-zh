@@ -1,33 +1,27 @@
 //
-// Quiz Time - Async I/O!
+// 测验时间：异步 I/O！
 //
-// Doctor Zoraptera's insect simulation is going well, but she
-// realized that her virtual garden needs weather data! Insects
-// behave differently depending on temperature, humidity, and
-// wind conditions.
+// Zoraptera 博士的昆虫模拟进展顺利，但她发现虚拟花园还需要天气数据！
+// 昆虫的行为会随温度、湿度和风况而改变。
 //
-// She has set up three weather sensors around the garden that
-// measure conditions in parallel and report their readings
-// through a shared data channel. A collector task gathers the
-// readings, and after all sensors have reported, a garden
-// report is printed.
+// 她在花园周围设置了三个天气传感器，并行测量环境状况，
+// 再通过共享数据通道报告读数。收集任务汇总读数，等所有传感器报告后，
+// 打印花园天气报告。
 //
-// But Doctor Z rushed through the code (she was being chased
-// by a grasshopper) and left several bugs. Can you fix them?
+// 但 Z 博士（当时正被蚱蜢追赶）匆忙写完代码，留下了几个 bug。
+// 你能修好它们吗？
 //
-// Here's what the program should do:
-//   1. Three sensor tasks send exactly 3 readings each through
-//      a Queue
-//   2. A collector task receives readings concurrently,
-//      protected by a Mutex
-//   3. After all sensors finish, the queue is closed
-//   4. The final report is written in a cancel-protected section
+// 程序应完成以下工作：
+//   1. 三个传感器任务各通过 Queue 发送恰好 3 条读数
+//   2. 收集任务并发接收读数，并使用 Mutex 保护共享状态
+//   3. 所有传感器完成后关闭队列
+//   4. 在取消保护区段中写出最终报告
 //
 // *************************************************************
-// *                A NOTE ABOUT THIS EXERCISE                 *
+// *                    本练习须知                            *
 // *                                                           *
-// * This quiz uses concepts from exercises 085-094.           *
-// * There are 6 bugs to fix - look for the ???s!              *
+// * 本测验使用了练习 085-094 中的概念。                       *
+// * 需要修复 6 个 bug，请找到所有 ???！                       *
 // *                                                           *
 // *************************************************************
 //
@@ -49,8 +43,8 @@ const GardenWeather = struct {
     mutex: std.Io.Mutex = .init,
 
     fn addReading(self: *GardenWeather, io: std.Io, reading: Reading) void {
-        // Bug 1: The collector needs to lock before modifying
-        // shared state. What Mutex method acquires the lock?
+        // Bug 1：收集任务修改共享状态前需要先加锁。
+        // Mutex 的哪个方法可以获取锁？
         self.mutex.???(io) catch return;
         defer self.mutex.unlock(io);
 
@@ -71,40 +65,35 @@ pub fn main(init: std.process.Init) !void {
     var reading_buf: [8]Reading = undefined;
     var queue: std.Io.Queue(Reading) = .init(&reading_buf);
 
-    // The collector must run concurrently so it can process
-    // readings while the sensors are still sending.
-    // Start it FIRST to ensure its concurrency unit is reserved.
+    // 收集任务必须并发运行，以便在传感器仍在发送时处理读数。
+    // 先启动它，确保为其预留并发单元。
     //
-    // Bug 2: The collector needs guaranteed concurrency.
-    // What method ensures a separate unit of concurrency?
-    // (Don't forget: it can fail!)
+    // Bug 2：收集任务需要保证并发运行。
+    // 哪个方法能确保使用独立的并发单元？（别忘了：它可能失败！）
     var collector_future = try io.???(collector, .{ io, &queue, &weather });
     defer _ = collector_future.cancel(io);
 
-    // Sensor group: the sensors can use async - they just need
-    // to run, and async is more portable.
+    // 传感器组：传感器只需要运行，因此可以使用可移植性更好的 async。
     var sensors: std.Io.Group = .init;
 
     sensors.async(io, sensor, .{ io, &queue, .thermometer, 20 });
     sensors.async(io, sensor, .{ io, &queue, .hygrometer, 60 });
     sensors.async(io, sensor, .{ io, &queue, .anemometer, 10 });
 
-    // Bug 3: Wait for ALL sensors to finish sending their readings.
-    // What Group method blocks until all tasks complete?
+    // Bug 3：等待所有传感器完成读数发送。
+    // Group 的哪个方法会阻塞到所有任务完成？
     try sensors.???(io);
 
-    // All sensors done - close the queue so the collector knows
-    // there's no more data coming.
+    // 所有传感器都已完成，关闭队列以通知收集任务不会再有数据。
     queue.close(io);
 
-    // Bug 4: How do we wait for the collector to drain the remaining queue?
+    // Bug 4：如何等待收集任务读完队列中的剩余数据？
     _ = collector_future.???(io);
 
-    // Now write the garden report. This is critical - it must
-    // NOT be interrupted, even if something tries to cancel us!
+    // 现在写出花园报告。这是关键操作，即使有取消请求也绝不能中断！
     //
-    // Bug 5: Protect this section from cancellation.
-    // What Io method swaps the cancel protection state?
+    // Bug 5：保护此区段，使其不受取消影响。
+    // Io 的哪个方法可以切换取消保护状态？
     const old_protection = io.???(.blocked);
     defer _ = io.???(old_protection);
 
@@ -117,7 +106,7 @@ fn sensor(
     sensor_type: SensorType,
     base_value: i32,
 ) void {
-    // Each sensor takes exactly 3 measurements.
+    // 每个传感器恰好测量 3 次。
     for (1..4) |i| {
         io.sleep(std.Io.Duration.fromMilliseconds(100), .awake) catch return;
 
@@ -126,8 +115,8 @@ fn sensor(
             .value = base_value + @as(i32, @intCast(i)),
         };
 
-        // Bug 6: Send the reading into the queue.
-        // What Queue method sends a single element?
+        // Bug 6：将读数发送到队列。
+        // Queue 的哪个方法可以发送单个元素？
         queue.???(io, reading) catch return;
     }
 }
@@ -160,28 +149,27 @@ fn printGardenReport(weather: *GardenWeather) void {
     }
 }
 
-// Further reading for the curious:
+// 延伸阅读：
 //
-// This quiz covered the main async I/O primitives:
-//   io.async()               - launch a task (may run inline)
-//   io.concurrent()          - guaranteed unit of concurrency
-//   Future.await/cancel      - collect or cancel a single task
-//   Group.async/await/cancel - manage fire-and-forget tasks
-//   Select.async/await       - race tasks, act on first completion
-//   Queue                    - bounded channel between tasks
-//   Mutex                    - protect shared state
-//   CancelProtection         - shield critical sections
+// 本测验涉及了主要的异步 I/O 原语：
+//   io.async()               - 启动任务（可能内联运行）
+//   io.concurrent()          - 保证使用独立并发单元
+//   Future.await/cancel      - 获取或取消单个任务
+//   Group.async/await/cancel - 管理无需等待结果的任务
+//   Select.async/await       - 让任务竞速并处理最先完成者
+//   Queue                    - 任务间的有界通道
+//   Mutex                    - 保护共享状态
+//   CancelProtection         - 保护临界区
 //
-// There are more synchronization primitives we didn't cover:
-//   Condition  - wait for a condition to become true
-//   RwLock     - multiple readers OR one writer
-//   Semaphore  - limit concurrent access to a resource
-//   Futex      - low-level wait/wake on a memory address
-//   Batch      - submit multiple I/O operations at once
+// 还有一些我们没有介绍的同步原语：
+//   Condition  - 等待条件变为真
+//   RwLock     - 允许多个读取者或一个写入者
+//   Semaphore  - 限制对资源的并发访问
+//   Futex      - 在内存地址上进行底层等待/唤醒
+//   Batch      - 一次提交多个 I/O 操作
 //
-// The key insight: all of these work through the Io VTable,
-// so your code is portable across backends - whether Threaded
-// (OS thread pool), or Evented (M:N green threads / fibers
-// that can provide concurrency even on a single OS thread).
+// 关键在于：这些功能都通过 Io VTable 工作，因此代码可以跨后端移植，
+// 无论后端是 Threaded（操作系统线程池），还是 Evented（M:N 绿色线程/纤程，
+// 即使在单个操作系统线程上也能提供并发）。
 //
-// Doctor Zoraptera approves.
+// Zoraptera 博士表示认可。

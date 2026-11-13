@@ -1,25 +1,21 @@
 //
-// When multiple async tasks access shared data, you need
-// synchronization! Io provides a Mutex for this:
+// 多个异步任务访问共享数据时，需要进行同步！Io 提供了 Mutex：
 //
 //     var mutex: std.Io.Mutex = .init;
 //
-//     // In a task:
-//     try mutex.lock(io);       // blocks until lock is acquired
+//     // 在任务中：
+//     try mutex.lock(io);       // 阻塞，直到成功获取锁
 //     defer mutex.unlock(io);
 //     // ... critical section: safe to modify shared data ...
 //
-// Without the mutex, concurrent tasks could read and write the
-// same memory simultaneously, causing a data race - the result
-// would be unpredictable.
+// 没有互斥锁时，并发任务可能同时读写同一块内存，造成数据竞争，
+// 结果将无法预测。
 //
-// mutex.lock() is a cancellation point - it can return
-// error.Canceled. There's also tryLock() which returns
-// immediately (true if acquired, false if not).
+// mutex.lock() 是取消点，可能返回 error.Canceled。还有 tryLock()，
+// 它会立即返回（获取成功为 true，否则为 false）。
 //
-// Fix this program so the counter is correctly synchronized.
-// Without the fix, the final count would be unpredictable.
-// With it, four tasks incrementing 100 times each = 400.
+// 请修复此程序，正确同步计数器。若不修复，最终计数无法预测。
+// 修复后，四个任务各自递增 100 次，结果应为 400。
 //
 const std = @import("std");
 const print = std.debug.print;
@@ -47,16 +43,16 @@ pub fn main(init: std.process.Init) !void {
 
 fn increment(io: std.Io, state: *SharedState, times: u32) void {
     for (0..times) |_| {
-        // Acquire the lock before modifying shared state.
-        // What Mutex method blocks until the lock is acquired?
+        // 修改共享状态前先获取锁。
+        // Mutex 的哪个方法会一直阻塞到成功获取锁？
         state.mutex.??? catch return;
         defer state.mutex.unlock(); // <-- what's missing here?
 
-        // Sleep to give the other tasks a chance to run in the meantime.
-        // We do this here only to make nondeterminism more visible.
+        // 休眠，让其他任务有机会运行。
+        // 这里只是为了让不确定性更明显。
         io.sleep(std.Io.Duration.fromMilliseconds(1), .awake) catch {};
 
-        // What happens if you neglect to lock the mutex?
+        // 如果忘了锁定互斥锁会怎样？
 
         state.counter += 1;
     }

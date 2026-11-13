@@ -1,27 +1,20 @@
 //
-// There have been several instances where it would have been
-// nice to use loops in our programs, but we couldn't because the
-// things we were trying to do could only be done at compile
-// time. We ended up having to do those things MANUALLY, like
-// NORMAL people. Bah! We are PROGRAMMERS! The computer should be
-// doing this work.
+// 有好几次，我们都很想在程序中使用循环，但因为要做的事情只能在编译时完成，
+// 所以没法使用循环。结果只好像普通人一样手动完成。哼！我们可是程序员！
+// 这种工作就该交给计算机。
 //
-// An 'inline for' is performed at compile time, allowing you to
-// programmatically loop through a series of items in situations
-// like those mentioned above where a regular runtime 'for' loop
-// wouldn't be allowed:
+// 'inline for' 会在编译时执行，因此在上面那种不允许使用普通运行时
+// 'for' 循环的场景中，也可以通过编程遍历一系列项目：
 //
 //     inline for (.{ u8, u16, u32, u64 }) |T| {
 //         print("{} ", .{@typeInfo(T).int.bits});
 //     }
 //
-// In the above example, we're looping over a list of types,
-// which are available only at compile time.
+// 在上面的例子中，我们遍历了一个类型列表，这些类型只能在编译时使用。
 //
 const print = @import("std").debug.print;
 
-// Remember Narcissus from exercise 065 where we used builtins
-// for reflection? He's back and loving it.
+// 还记得练习 065 中用内置函数进行反射的 Narcissus 吗？他又回来了，而且乐在其中。
 const Narcissus = struct {
     me: *Narcissus = undefined,
     myself: *Narcissus = undefined,
@@ -31,12 +24,11 @@ const Narcissus = struct {
 pub fn main() void {
     print("Narcissus has room in his heart for:", .{});
 
-    // Last time we examined the Narcissus struct, we had to
-    // manually access each of the three fields. Our 'if'
-    // statement was repeated three times almost verbatim. Yuck!
+    // 上次检查 Narcissus 结构体时，我们不得不手动访问三个字段。
+    // 'if' 语句几乎原样重复了三次。真糟糕！
     //
-    // Please use an 'inline for' to implement the block below
-    // for each field in the corresponding slices (they're of the same length)!
+    // 请使用 'inline for'，对下方对应切片中的每个字段执行这段代码
+    //（这些切片长度相同）！
 
     const field_names = @typeInfo(Narcissus).@"struct".field_names;
     const field_types = @typeInfo(Narcissus).@"struct".field_types;
@@ -47,9 +39,7 @@ pub fn main() void {
         }
     }
 
-    // Once you've got that, go back and take a look at exercise
-    // 065 and compare what you've written to the abomination we
-    // had there!
+    // 完成后，回头看看练习 065，并将你写的代码与那里的可怕写法比较一下！
 
     print(".\n", .{});
 }

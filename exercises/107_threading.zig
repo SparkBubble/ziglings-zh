@@ -1,29 +1,25 @@
 //
-// In Exercises 85-94 and quiz 95, we learned about Zig's Io interface for
-// concurrent execution: io.async(), Group, Select, and Futures.
-// Under the hood, the Threaded backend manages a pool of real
-// OS threads for you - including scheduling, cancellation, and
-// resource cleanup.
+// 在练习 85-94 和测验 95 中，我们学习了 Zig 用于并发执行的 Io 接口：
+// io.async()、Group、Select 和 Future。Threaded 后端会在底层为你管理
+// 一组真正的操作系统线程，包括调度、取消和资源清理。
 //
-// But sometimes you need direct control over threads:
-//   * Long-lived dedicated workers
-//   * Specific stack sizes or thread counts
-//   * Code that doesn't have an Io interface available
-//   * Fine-grained synchronization patterns
+// 但有时你需要直接控制线程：
+//   * 长期运行的专用工作线程
+//   * 指定栈大小或线程数量
+//   * 无法使用 Io 接口的代码
+//   * 更细粒度的同步模式
 //
-// That's where std.Thread comes in. It gives you a raw OS thread
-// that you spawn, manage, and join yourself. No pool, no Futures,
-// no automatic cancellation - but full control.
+// 这时就要用到 std.Thread。它提供原生操作系统线程，由你自行启动、管理并等待。
+// 没有线程池、Future 或自动取消，但可以完全掌控。
 //
-// The following diagram roughly illustrates the difference between
-// the various types of process execution:
+// 下图大致说明了不同进程执行方式之间的区别：
 //
 //
-// Synchronous  Asynchronous
-// Processing   Processing        Multithreading
+// 同步处理     异步处理
+//                              多线程
 // ┌──────────┐ ┌──────────┐  ┌──────────┐ ┌──────────┐
 // │ Thread 1 │ │ Thread 1 │  │ Thread 1 │ │ Thread 2 │
-// ├──────────┤ ├──────────┤  ├──────────┤ ├──────────┤    Overall Time
+// ├──────────┤ ├──────────┤  ├──────────┤ ├──────────┤    总耗时
 // └──┼┼┼┼┼───┴─┴──┼┼┼┼┼───┴──┴──┼┼┼┼┼───┴─┴──┼┼┼┼┼───┴──┬───────┬───────┬──
 //    ├───┤        ├───┤         ├───┤        ├───┤      │       │       │
 //    │ T │        │ T │         │ T │        │ T │      │       │       │
@@ -35,7 +31,7 @@
 //    └─┬─┘        └─┬─┘         └─┬─┘        └─┬─┘      │       │       │
 //      │            │             │            │      5 Sec     │       │
 // ┌────┴───┐      ┌─┴─┐         ┌─┴─┐        ┌─┴─┐      │       │       │
-// │Blocking│      │ T │         │ T │        │ T │      │       │       │
+// │阻塞等待│      │ T │         │ T │        │ T │      │       │       │
 // └────┬───┘      │ a │         │ a │        │ a │      │       │       │
 //      │          │ s │         │ s │        │ s │      │     8 Sec     │
 //    ┌─┴─┐        │ k │         │ k │        │ k │      │       │       │
@@ -59,70 +55,61 @@
 //    └───┴────────────────────────────────────────────────────────────────
 //
 //
-// The diagram was modeled on the one in a blog in which the differences
-// between asynchronous processing and multithreading are explained in detail:
+// 该图参考了一篇详细解释异步处理与多线程区别的博客：
 // https://blog.devgenius.io/multi-threading-vs-asynchronous-programming-what-is-the-difference-3ebfe1179a5
 //
-// Our exercise is essentially about clarifying the approach in Zig and
-// therefore we try to keep it as simple as possible.
-// Multithreading in itself is already difficult enough. ;-)
+// 本练习主要是说明 Zig 中的处理方式，因此尽量保持简单。
+// 多线程本身已经够复杂了。;-)
 //
 const std = @import("std");
 
 pub fn main() !void {
-    // This is where the preparatory work takes place
-    // before the parallel processing begins.
+    // 并行处理开始前，在这里进行准备工作。
     std.debug.print("Starting work...\n", .{});
 
-    // These curly braces are very important, they are necessary
-    // to enclose the area where the threads are called and joined.
-    // With these braces, the program will block and wait for all threads
-    // to finish right at the closing brace of this block, ensuring
-    // "Zig is cool!" is always printed last.
+    // 这些花括号非常重要，它们包住了启动并等待线程的代码区域。
+    // 程序会在这个代码块的右花括号处阻塞，等待所有线程结束，
+    // 从而确保 "Zig is cool!" 总是最后打印。
     {
-        // Now we start the first thread, with the number as parameter
+        // 现在启动第一个线程，并将数字作为参数传入
         const handle = try std.Thread.spawn(.{}, thread_function, .{1});
 
-        // Waits for the thread to complete,
-        // then deallocates any resources created on `spawn()`.
+        // 等待线程完成，然后释放 `spawn()` 创建的资源。
         defer handle.join();
 
-        // Second thread
-        const handle2 = try std.Thread.spawn(.{}, thread_function, .{-4}); // that can't be right?
+        // 第二个线程
+        const handle2 = try std.Thread.spawn(.{}, thread_function, .{-4}); // 这不太对吧？
         defer handle2.join();
 
-        // Third thread
+        // 第三个线程
         const handle3 = try std.Thread.spawn(.{}, thread_function, .{3});
-        defer ??? // <-- something is missing
+        defer ??? // <-- 这里还缺了点东西
 
-        // After the threads have been started,
-        // they run in parallel and we can still do some work in between.
+        // 线程启动后会并行运行，我们也可以在此期间继续做其他工作。
         var io_instance: std.Io.Threaded = .init_single_threaded;
         const io = io_instance.io();
         try io.sleep(std.Io.Duration.fromMilliseconds(400), .awake);
         std.debug.print("Some weird stuff, after starting the threads.\n", .{});
     }
-    // The threads are guaranteed to be finished by the time we reach here.
+    // 执行到这里时，可以保证所有线程都已结束。
     std.debug.print("Zig is cool!\n", .{});
 }
 
-// This function is started with every thread that we set up.
-// In our example, we pass the number of the thread as a parameter.
+// 每个已创建的线程都会运行这个函数。
+// 本例中，我们将线程编号作为参数传入。
 fn thread_function(id: usize) !void {
     var io_instance: std.Io.Threaded = .init_single_threaded;
     const io = io_instance.io();
     try io.sleep(std.Io.Duration.fromMilliseconds(100 * @as(isize, @intCast(id))), .awake);
     std.debug.print("thread {d}: {s}\n", .{ id, "started." });
 
-    // This timer simulates the work of the thread.
+    // 这个计时器用于模拟线程的工作。
     const work_time = 300 * ((5 - id % 3) - 2);
     try io.sleep(std.Io.Duration.fromMilliseconds(@intCast(work_time)), .awake);
 
     std.debug.print("thread {d}: {s}\n", .{ id, "finished." });
 }
-// This is the easiest way to run threads in parallel.
-// In general, however, more management effort is required,
-// e.g. by setting up a pool and allowing the threads to communicate
-// with each other using semaphores.
+// 这是并行运行线程最简单的方法。不过通常还需要更多管理工作，
+// 例如建立线程池，并允许线程通过信号量相互通信。
 //
-// But that's a topic for another exercise.
+// 这些内容留到其他练习再介绍。

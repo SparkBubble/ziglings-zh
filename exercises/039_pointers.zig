@@ -1,24 +1,21 @@
 //
-// Check this out:
+// 看看这个：
 //
-//     var foo: u8 = 5;      // foo is 5
-//     var bar: *u8 = &foo;  // bar is a pointer
+//     var foo: u8 = 5;      // foo 的值为 5
+//     var bar: *u8 = &foo;  // bar 是一个指针
 //
-// What is a pointer? It's a reference to a value. In this example,
-// bar is a reference to the memory space that currently contains the
-// value 5.
+// 什么是指针？它是对某个值的引用。在这个例子中，bar 引用了当前存放值 5 的内存位置。
 //
-// A cheatsheet given the above declarations:
+// 上述声明的速查表：
 //
-//     u8         the type of a u8 value
-//     foo        the value 5
-//     *u8        the type of a pointer to a u8 value
-//     &foo       a reference to foo
-//     bar        a pointer to the value at foo
-//     bar.*      the value 5 (the dereferenced value "at" bar)
+//     u8         u8 值的类型
+//     foo        值 5
+//     *u8        指向 u8 值的指针类型
+//     &foo       对 foo 的引用
+//     bar        指向 foo 中值的指针
+//     bar.*      值 5（对 bar 解引用得到的值）
 //
-// We'll see why pointers are useful in a moment. For now, see if you
-// can make this example work!
+// 稍后我们会了解指针的用途。现在先试试看能否让这个例子正常工作！
 //
 const std = @import("std");
 
@@ -28,8 +25,8 @@ pub fn main() void {
 
     var num2: u8 = undefined;
 
-    // Please make num2 equal 5 using num1_pointer!
-    // (See the "cheatsheet" above for ideas.)
+    // 请使用 num1_pointer 让 num2 等于 5！
+    //（可以参考上面的“速查表”。）
     num2 = ???;
 
     std.debug.print("num1: {}, num2: {}\n", .{ num1, num2 });

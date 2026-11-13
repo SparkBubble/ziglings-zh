@@ -1,23 +1,22 @@
 //
-// As a matter of fact, you can put 'comptime' in front of any
-// expression to force it to be run at compile time.
+// 实际上，可以在任何表达式前加上 'comptime'，强制它在编译时运行。
 //
-// Execute a function:
+// 执行函数：
 //
 //     comptime llama();
 //
-// Get a value:
+// 获取值：
 //
 //     bar = comptime baz();
 //
-// Execute a whole block:
+// 执行整个代码块：
 //
 //     comptime {
 //         bar = baz + biff();
 //         llama(bar);
 //     }
 //
-// Get a value from a block:
+// 从代码块中获取值：
 //
 //     var llama = comptime bar: {
 //         const baz = biff() + bonk();
@@ -30,36 +29,29 @@ const llama_count = 5;
 const llamas = [llama_count]u32{ 5, 10, 15, 20, 25 };
 
 pub fn main() void {
-    // We meant to fetch the last llama. Please fix this simple
-    // mistake so the assertion no longer fails.
+    // 我们原本想取最后一只 llama。请修正这个简单错误，让断言不再失败。
     const my_llama = getLlama(5);
 
     print("My llama value is {}.\n", .{my_llama});
 }
 
 fn getLlama(i: usize) u32 {
-    // We've put a guard assert() at the top of this function to
-    // prevent mistakes. The 'comptime' keyword here means that
-    // the mistake will be caught when we compile!
+    // 我们在这个函数开头放置了 assert() 作为防护，避免出错。
+    // 这里的 'comptime' 关键字意味着错误会在编译时被发现！
     //
-    // Without 'comptime', this would still work, but the
-    // assertion would fail at runtime with a PANIC, and that's
-    // not as nice.
+    // 没有 'comptime' 时，代码仍然能运行，但断言会在运行时失败并触发 PANIC，
+    // 体验就没那么好了。
     //
-    // Unfortunately, we're going to get an error right now
-    // because the 'i' parameter needs to be guaranteed to be
-    // known at compile time. What can you do with the 'i'
-    // parameter above to make this so?
+    // 遗憾的是，现在会报错，因为必须保证参数 'i' 在编译时已知。
+    // 你能对上面的 'i' 参数做些什么来满足这一点？
     comptime assert(i < llama_count);
 
     return llamas[i];
 }
 
-// Fun fact: this assert() function is identical to
-// std.debug.assert() from the Zig Standard Library.
+// 趣闻：这个 assert() 函数与 Zig 标准库中的 std.debug.assert() 完全相同。
 fn assert(ok: bool) void {
     if (!ok) unreachable;
 }
 //
-// Bonus fun fact: I accidentally replaced all instances of 'foo'
-// with 'llama' in this exercise and I have no regrets!
+// 额外趣闻：我不小心把本练习中所有的 'foo' 都替换成了 'llama'，对此毫不后悔！

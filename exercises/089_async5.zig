@@ -1,15 +1,12 @@
 //
-// One of the most important features of the new Io system is
-// structured cancellation!
+// 新 Io 系统最重要的特性之一是结构化取消！
 //
-// Every Future has a .cancel() method that:
-//   1. Requests the task to stop (via error.Canceled at the
-//      next "cancellation point")
-//   2. BLOCKS until the task actually finishes
-//   3. Returns whatever result the task produced
+// 每个 Future 都有 .cancel() 方法，它会：
+//   1. 请求任务停止（在下一个“取消点”通过 error.Canceled 实现）
+//   2. 阻塞到任务实际结束
+//   3. 返回任务产生的结果
 //
-// A "cancellation point" is any Io function that can return
-// error.Canceled - most commonly io.sleep():
+// “取消点”是指任何可能返回 error.Canceled 的 Io 函数，最常见的是 io.sleep()：
 //
 //     fn myTask(io: std.Io) u32 {
 //         io.sleep(...) catch |err| switch (err) {
@@ -18,17 +15,13 @@
 //         return 42;
 //     }
 //
-// This is fundamentally different from killing a thread -
-// the task gets a chance to clean up and return a value!
+// 这与直接终止线程根本不同：任务有机会清理资源并返回值！
 //
-// Remember: both .await() and .cancel() block and return the
-// result. The only difference is that .cancel() also sends
-// the cancellation request. And both are idempotent - calling
-// either one again just returns the same result.
+// 记住：.await() 和 .cancel() 都会阻塞并返回结果。唯一的区别是 .cancel()
+// 还会发出取消请求。二者都是幂等的，重复调用只会返回相同结果。
 //
-// Fix this program: the slow task would take 10 seconds,
-// but we cancel it after 1 second. The task should detect
-// the cancellation and return early.
+// 请修复此程序：慢任务原本需要 10 秒，但我们在 1 秒后取消它。
+// 任务应检测到取消并提前返回。
 //
 const std = @import("std");
 const print = std.debug.print;
@@ -39,13 +32,12 @@ pub fn main(init: std.process.Init) !void {
     var future = io.async(slowTask, .{io});
     defer _ = future.cancel(io); // safety net
 
-    // Wait 1 second, then cancel instead of waiting the full 10.
+    // 等待 1 秒后取消，不必等满 10 秒。
     io.sleep(std.Io.Duration.fromSeconds(1), .awake) catch {};
 
     print("Canceling slow task...\n", .{});
 
-    // We don't want to wait 10 seconds!
-    // Which Future method requests cancellation AND returns the result?
+    // 我们不想等 10 秒！Future 的哪个方法会请求取消并返回结果？
     const result = future.???(io);
 
     print("Task returned: {}\n", .{result});
@@ -54,7 +46,7 @@ pub fn main(init: std.process.Init) !void {
 fn slowTask(io: std.Io) u32 {
     print("Starting long computation...\n", .{});
 
-    // Try to sleep for 10 seconds - but we might get canceled!
+    // 尝试休眠 10 秒，不过任务可能会被取消！
     io.sleep(std.Io.Duration.fromSeconds(10), .awake) catch |err| switch (err) {
         error.Canceled => {
             print("Task was canceled, cleaning up.\n", .{});

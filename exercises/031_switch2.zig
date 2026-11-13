@@ -1,6 +1,5 @@
 //
-// What's really nice is that you can use a switch statement as an
-// expression to return a value.
+// 很棒的一点是，switch 语句也可以作为表达式来返回值。
 //
 //     const a = switch (x) {
 //         1 => 9,
@@ -29,13 +28,13 @@ pub fn main() void {
             // ...
             25 => 'Y',
             26 => 'Z',
-            // As in the last exercise, please add the 'else' clause
-            // and this time, have it return an exclamation mark '!'.
+            // 和上一个练习一样，请添加 'else' 分支，
+            // 这次让它返回感叹号 '!'。
         };
 
         std.debug.print("{c}", .{real_char});
-        // Note: "{c}" forces print() to display the value as a character.
-        // Can you guess what happens if you remove the "c"? Try it!
+        // 注意："{c}" 会强制 print() 将值显示为字符。
+        // 你能猜到去掉 "c" 会怎样吗？试试看！
     }
 
     std.debug.print("\n", .{});

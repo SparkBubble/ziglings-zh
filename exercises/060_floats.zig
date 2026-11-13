@@ -1,104 +1,83 @@
 //
-// Zig has support for IEEE-754 floating-point numbers in these
-// specific sizes: f16, f32, f64, f80, and f128. Floating point
-// literals may be written in the same ways as integers but also
-// in scientific notation:
+// Zig 支持以下 IEEE-754 浮点数位宽：f16、f32、f64、f80 和 f128。
+// 浮点数字面量可以像整数一样书写，也可以使用科学计数法：
 //
 //     const a1: f32 = 1200;       //    1,200
 //     const a2: f32 = 1.2e+3;     //    1,200
 //     const b1: f32 = -500_000.0; // -500,000
 //     const b2: f32 = -5.0e+5;    // -500,000
 //
-// Hex floats can't use the letter 'e' because that's a hex
-// digit, so we use a 'p' instead:
+// 十六进制浮点数不能使用字母 'e'，因为它是十六进制数字，
+// 所以我们改用 'p'：
 //
-//     const hex: f16 = 0x2A.F7p+3; // Wow, that's arcane!
+//     const hex: f16 = 0x2A.F7p+3; // 哇，这可真晦涩！
 //
-// Be sure to use a float type that is large enough to store your
-// value (both in terms of significant digits and scale).
-// Rounding may or may not be okay, but numbers which are too
-// large or too small become inf or -inf (positive or negative
-// infinity)!
+// 请确保浮点类型足够大，能够存储你的值（包括有效数字和数值范围）。
+// 舍入是否可接受取决于情况，但过大或过小的数字会变成 inf 或 -inf
+//（正无穷或负无穷）！
 //
-//     const pi: f16 = 3.1415926535;   // rounds to 3.140625
-//     const av: f16 = 6.02214076e+23; // Avogadro's inf(inity)!
+//     const pi: f16 = 3.1415926535;   // 舍入为 3.140625
+//     const av: f16 = 6.02214076e+23; // 阿伏伽德罗常数变成无穷大！
 //
-// When performing math operations with numeric literals, ensure
-// the types match. Zig does not perform unsafe type coercions
-// behind your back:
+// 对数字字面量执行数学运算时，要确保类型匹配。Zig 不会在背后
+// 执行不安全的类型强制转换：
 //
-//    var foo: f16 = 5;       // NO ERROR
+//    var foo: f16 = 5;       // 没有错误
 //
-//    A runtime value can coerce to a different type,
-//    as long as the value is losslessly representable:
+//    运行时的值可以强制转换为另一种类型，前提是转换后能无损表示：
 //
 //    var foo: u16 = 5;
-//    var bar: f16 = foo;     // NO ERROR (5 fits in f16)
+//    var bar: f16 = foo;     // 没有错误（5 可由 f16 表示）
 //
 //    var foo: u16 = 49876;
-//    var bar: f16 = foo;     // ERROR (49876 not representable in f16)
+//    var bar: f16 = foo;     // 错误（f16 无法表示 49876）
 //
 //
-// Please fix the two float problems with this program and
-// display the result as a whole number.
+// 请修正此程序中的两个浮点数问题，并将结果显示为整数。
 
 const print = @import("std").debug.print;
 
 pub fn main() void {
-    // The approximate weight of the Space Shuttle upon liftoff
-    // (including boosters and fuel tank) was 4,480,000 lb.
+    // 航天飞机发射时的重量约为 4,480,000 磅（包括助推器和燃料箱）。
     //
-    // We'll convert this weight from pounds to metric units at a
-    // conversion of 0.453592 kg to the pound.
+    // 我们按 1 磅等于 0.453592 千克的换算率，将重量从磅转换为公制单位。
     const shuttle_weight: f16 = 0.453592 * 4480e3;
 
-    // By default, float values are formatted in standard decimal
-    // notation. Experiment with '{d}' and '{d:.3}' to see how
-    // decimal formatting works, or try '{e}' and '{e:.3}' for
-    // scientific notation.
-    // NOTE: The weight of the shuttle is a huge number, a scientific notation
-    // may be more appropriate.
+    // 默认情况下，浮点值使用标准十进制格式。试试 '{d}' 和 '{d:.3}'，
+    // 看看十进制格式如何工作；也可以试试 '{e}' 和 '{e:.3}' 使用科学计数法。
+    // 注意：航天飞机的重量数值很大，科学计数法可能更合适。
     print("Shuttle liftoff weight: {d:.0} metric tons\n", .{shuttle_weight / 1e3});
 }
 
-// Floating further:
+// 浮点数进阶：
 //
-// As an example, Zig's f16 is a IEEE 754 "half-precision" binary
-// floating-point format ("binary16"), which is stored in memory
-// like so:
+// 例如，Zig 的 f16 是 IEEE 754“半精度”二进制浮点格式（"binary16"），
+// 它在内存中的存储方式如下：
 //
 //         0 1 0 0 0 0 1 0 0 1 0 0 1 0 0 0
 //         | |-------| |-----------------|
-//         |  exponent     significand
+//         |  指数         有效数字
 //         |
-//          sign
+//          符号
 //
-// This example is the decimal number 3.140625, which happens to
-// be the closest representation of Pi we can make with an f16
-// due to the way IEEE-754 floating points store digits:
+// 这个例子表示十进制数 3.140625。由于 IEEE-754 浮点数存储数字的方式，
+// 这是 f16 能表示的最接近 Pi 的数：
 //
-//   * Sign bit 0 makes the number positive.
-//   * Exponent bits 10000 are a scale of 16.
-//   * Significand bits 1001001000 are the decimal value 584.
+//   * 符号位 0 表示该数为正。
+//   * 指数位 10000 表示数值为 16。
+//   * 有效数字位 1001001000 的十进制值是 584。
 //
-// IEEE-754 saves space by modifying these values: the value
-// 01111 is always subtracted from the exponent bits (in our
-// case, 10000 - 01111 = 1, so our exponent is 2^1) and our
-// significand digits become the decimal value _after_ an
-// implicit 1 (so 1.1001001000 or 1.5703125 in decimal)! This
-// gives us:
+// IEEE-754 通过调整这些值来节省空间：指数位总要减去 01111
+//（本例中 10000 - 01111 = 1，因此指数为 2^1），有效数字则表示
+// 隐含的 1 _之后_ 的十进制值（即 1.1001001000，十进制为 1.5703125）！
+// 因此得到：
 //
 //     2^1 * 1.5703125 = 3.140625
 //
-// Feel free to forget these implementation details immediately.
-// The important thing to know is that floating point numbers are
-// great at storing big and small values (f64 lets you work with
-// numbers on the scale of the number of atoms in the universe),
-// but digits may be rounded, leading to results which are less
-// precise than integers.
+// 这些实现细节看过就可以忘掉。重要的是，浮点数适合存储很大或很小的值
+//（f64 可以表示宇宙中原子数量级的数），但数字可能会被舍入，
+// 因此结果不如整数精确。
 //
-// Fun fact: sometimes you'll see the significand labeled as a
-// "mantissa" but Donald E. Knuth says not to do that.
+// 趣闻：有时有效数字会被称为“尾数”（mantissa），但 Donald E. Knuth 认为不该这么叫。
 //
-// C compatibility fact: There is also a Zig floating point type
-// specifically for working with C ABIs called c_longdouble.
+// C 兼容性知识：Zig 还有一种专门用于 C ABI 的浮点类型，名为 c_longdouble。

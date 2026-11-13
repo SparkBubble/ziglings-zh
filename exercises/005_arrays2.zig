@@ -1,16 +1,15 @@
 //
-// Zig has one array operator.
+// Zig 有一个数组运算符。
 //
-// You can use '++' to concatenate two arrays:
+// 可以使用 '++' 拼接两个数组：
 //
 //   const a = [_]u8{ 1,2 };
 //   const b = [_]u8{ 3,4 };
-//   const c = a ++ b ++ [_]u8{ 5 }; // equals 1 2 3 4 5
+//   const c = a ++ b ++ [_]u8{ 5 }; // 结果为 1 2 3 4 5
 //
-// Note that '++' only operates on arrays while your program is
-// _being compiled_. This special time is known in Zig
-// parlance as "comptime" and we'll learn plenty more about that
-// later.
+// 注意，'++' 只会在程序_编译期间_对数组进行操作。
+// 在 Zig 中，这个特殊阶段称为 "comptime"，之后我们会
+// 进一步学习相关内容。
 //
 const std = @import("std");
 
@@ -18,34 +17,29 @@ pub fn main() void {
     const le = [_]u8{ 1, 3 };
     const et = [_]u8{ 3, 7 };
 
-    // (Problem 1)
-    // Please set this array concatenating the two arrays above.
-    // It should result in: 1 3 3 7
+    //（问题 1）请拼接上面的两个数组来设置此数组，结果应为：1 3 3 7。
     const leet = ???;
 
-    // (Problem 2)
-    // Please set this array using repetition.
-    // It should result in: 1 0 0 1 1 0 0 1 1 0 0 1
-    // To solve this problem, please continue reading.
+    //（问题 2）请使用重复操作设置此数组。
+    // 结果应为：1 0 0 1 1 0 0 1 1 0 0 1。请继续阅读以了解解法。
     const bit_pattern_unit = ???;
 
-    // How long should the bit pattern be?
+    // 位模式应该有多长？
     const len = ???;
 
-    // For now, don't worry about the use of SIMD.
-    // However, this is a good time to try zig's amazing self-hosted documentation.
-    // Please try: `zig std` on the command-line and search for the repeat function in the browser.
+    // 现在先不用担心 SIMD 的用法。
+    // 不过，正好可以试试 Zig 很棒的自带文档。
+    // 请在命令行运行 `zig std`，然后在浏览器中搜索 repeat 函数。
     const bit_pattern: [len]u8 = std.simd.repeat(len, bit_pattern_unit);
 
-    // Okay, that's all of the problems. Let's see the results.
+    // 好，问题都做完了。来看看结果。
     //
-    // We could print these arrays with leet[0], leet[1],...but let's
-    // have a little preview of Zig 'for' loops instead:
+    // 我们可以用 leet[0]、leet[1]……来打印数组，但不如先
+    // 预览一下 Zig 的 'for' 循环：
     //
-    //    for (<item array>) |item| { <do something with item> }
+    //    for (<item array>) |item| { <对 item 做些处理> }
     //
-    // Don't worry, we'll cover looping properly in upcoming
-    // lessons.
+    // 别担心，后续课程会详细讲解循环。
     //
     std.debug.print("LEET: ", .{});
 
@@ -62,11 +56,9 @@ pub fn main() void {
     std.debug.print("\n", .{});
 }
 
-// For the curious:
+// 补充说明：
 //
-// The `std.simd.repeat` function takes a target length and a pattern,
-// and returns a vector filled with that pattern repeated to the
-// desired length.
+// `std.simd.repeat` 函数接受目标长度和一个模式，
+// 并返回按该模式重复填充到目标长度的向量。
 //
-// For example, `repeat(5, [_]u8{1, 2})` will return a vector
-// equivalent to `.{1, 2, 1, 2, 1}`.
+// 例如，`repeat(5, [_]u8{1, 2})` 会返回等价于 `.{1, 2, 1, 2, 1}` 的向量。

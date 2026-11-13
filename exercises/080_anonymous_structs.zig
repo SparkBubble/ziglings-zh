@@ -1,36 +1,34 @@
 //
-// Struct types are always "anonymous" until we give them a name:
+// 结构体类型在命名之前始终是“匿名”的：
 //
 //     struct {};
 //
-// So far, we've been giving struct types a name like so:
+// 到目前为止，我们一直用下面这种方式给结构体类型命名：
 //
 //     const Foo = struct {};
 //
-// * The value of @typeName(Foo) is "<filename>.Foo".
+// * @typeName(Foo) 的值是 "<文件名>.Foo"。
 //
-// A struct is also given a name when you return it from a
-// function:
+// 从函数返回结构体时，结构体也会获得一个名称：
 //
 //     fn Bar() type {
 //         return struct {};
 //     }
 //
-//     const MyBar = Bar();  // store the struct type
-//     const bar = Bar() {}; // create instance of the struct
+//     const MyBar = Bar();  // 保存结构体类型
+//     const bar = Bar() {}; // 创建结构体实例
 //
-// * The value of @typeName(Bar()) is "<filename>.Bar()".
-// * The value of @typeName(MyBar) is "<filename>.Bar()".
-// * The value of @typeName(@TypeOf(bar)) is "<filename>.Bar()".
+// * @typeName(Bar()) 的值是 "<文件名>.Bar()"。
+// * @typeName(MyBar) 的值是 "<文件名>.Bar()"。
+// * @typeName(@TypeOf(bar)) 的值是 "<文件名>.Bar()"。
 //
-// You can also have completely anonymous structs. The value
-// of @typeName(struct {}) is "<filename>.<function>__struct_<nnn>".
+// 也可以使用完全匿名的结构体。@typeName(struct {}) 的值是
+// "<文件名>.<函数>__struct_<nnn>"。
 //
 const print = @import("std").debug.print;
 
-// This function creates a generic data structure by returning an
-// anonymous struct type (which will no longer be anonymous AFTER
-// it's returned from the function).
+// 这个函数通过返回匿名结构体类型来创建泛型数据结构
+//（从函数返回后，它就不再是匿名类型了）。
 fn Circle(comptime T: type) type {
     return struct {
         center_x: T,
@@ -41,12 +39,10 @@ fn Circle(comptime T: type) type {
 
 pub fn main() void {
     //
-    // See if you can complete these two variable initialization
-    // expressions to create instances of circle struct types
-    // which can hold these values:
+    // 试着补全这两个变量初始化表达式，创建可以存储以下值的圆结构体实例：
     //
-    // * circle1 should hold i32 integers
-    // * circle2 should hold f32 floats
+    // * circle1 应存储 i32 整数
+    // * circle2 应存储 f32 浮点数
     //
     const circle1 = ??? {
         .center_x = 25,
@@ -75,11 +71,10 @@ pub fn main() void {
     });
 }
 
-// Perhaps you remember the "narcissistic fix" for the type name
-// in Ex. 065? We're going to do the same thing here: use a hard-
-// coded slice to return the type name. That's just so our output
-// looks prettier. Indulge your vanity. Programmers are beautiful.
+// 还记得练习 065 中类型名称的“自恋修正”吗？这里也要做同样的事：
+// 使用硬编码切片返回类型名称。这只是为了让输出更漂亮。满足一下虚荣心吧，
+// 程序员都很美。
 fn stripFname(mytype: []const u8) []const u8 {
     return mytype[22..];
 }
-// The above would be an instant red flag in a "real" program.
+// 在“真正的”程序中，上面的写法会立刻引起警觉。

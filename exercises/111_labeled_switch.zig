@@ -1,12 +1,11 @@
 //
-// You've heard of while loops in exercises 011,012,013 and 014
-// You've also heard of switch expressions in exercises 030 and 31.
-// You've also seen how labels can be used in exercise 063.
+// 你已经在练习 011、012、013 和 014 中学过 while 循环，
+// 在练习 030 和 031 中学过 switch 表达式，也在练习 063 中见过标签的用法。
 //
-// By combining while loops and switch statements with continue and break statements
-// one can create very concise State Machines.
+// 将 while 循环、switch 语句与 continue 和 break 组合起来，
+// 可以构建非常简洁的状态机。
 //
-// One such example would be:
+// 例如：
 //
 //      pub fn main() void {
 //          var op: u8 = 1;
@@ -22,12 +21,12 @@
 //          std.debug.print("This statement cannot be reached\n", .{});
 //      }
 //
-// By combining all we've learned so far, we can now proceed with a labeled switch.
+// 结合目前学到的内容，我们现在可以学习带标签的 switch。
 //
-// A labeled switch is some extra syntactic sugar, which comes with all sorts of
-// candy (performance benefits). Don't believe me? Directly to source https://github.com/ziglang/zig/pull/21367
+// 带标签的 switch 是一种语法糖，还附带各种“糖果”（性能优势）。不相信？看源码：
+// https://github.com/ziglang/zig/pull/21367
 //
-// Here is the previous excerpt implemented as a labeled switch instead:
+// 以下是用带标签的 switch 实现的前一个例子：
 //
 //      pub fn main() void {
 //          foo: switch (@as(u8, 1)) {
@@ -39,17 +38,13 @@
 //          std.debug.print("This statement cannot be reached\n", .{});
 //      }
 //
-// The flow of execution on this second case is:
-//  1. The switch starts with value '1';
-//  2. The switch evaluates to case '1' which in turn uses the continue statement
-//     to re-evaluate the labeled switch again, now providing the value '2';
-//  3. In the case '2' we repeat the same pattern as case '1'
-//     but instead the value to be evaluated is now '3';
-//  4. Finally we get to case '3', where we return from the function as a whole,
-//     so the debug statement is never executed.
-//  5. In this example, since the input does not have clear, exhaustive patterns and
-//     can essentially be any 'u8' integer, we need to handle all cases not explicitly
-//     covered by using the 'else => {}' branch as the default case.
+// 第二个例子的执行流程如下：
+//  1. switch 从值 '1' 开始；
+//  2. 匹配到 case '1' 后，使用 continue 重新计算带标签的 switch，此时提供值 '2'；
+//  3. case '2' 重复相同过程，不过现在要计算的值是 '3'；
+//  4. 最终进入 case '3' 并直接从整个函数返回，因此不会执行调试打印语句；
+//  5. 本例的输入没有明确且穷尽的模式，实际上可以是任意 u8 整数，
+//     因此需要用 'else => {}' 分支处理所有未显式匹配的情况。
 //
 //
 const std = @import("std");
@@ -63,8 +58,7 @@ const PullRequestState = enum(u8) {
 };
 
 pub fn main() void {
-    // Oh no, your pull request keeps being rejected,
-    // how would you fix it?
+    // 糟了，你的拉取请求一直被拒绝，该怎么修复？
     pr: switch (PullRequestState.Draft) {
         PullRequestState.Draft => continue :pr PullRequestState.InReview,
         PullRequestState.InReview => continue :pr PullRequestState.Rejected,

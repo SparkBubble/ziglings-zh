@@ -1,33 +1,28 @@
 //
-// In exercise 089, we learned that cancellation happens at
-// "cancellation points" - any Io function that can return
-// error.Canceled.
+// 在练习 089 中，我们了解到取消会发生在“取消点”，也就是任何
+// 可能返回 error.Canceled 的 Io 函数处。
 //
-// But sometimes a task has a critical section that MUST NOT
-// be interrupted - for example, writing a consistent state
-// to disk, or completing a transaction.
+// 但有时任务会有绝不能中断的临界区，例如将一致状态写入磁盘，
+// 或完成一笔事务。
 //
-// Io provides CancelProtection for this:
+// Io 为此提供 CancelProtection：
 //
 //     const old = io.swapCancelProtection(.blocked);
 //     defer _ = io.swapCancelProtection(old);
 
-//     // In this block, NO Io function will return error.Canceled.
-//     // The cancel request is held until protection is restored.
+//     // 在这个代码块中，任何 Io 函数都不会返回 error.Canceled。
+//     // 取消请求会一直暂存，直到恢复保护状态。
 //
-// There are two states:
-//   .unblocked - normal: cancellation points can fire (default)
-//   .blocked   - protected: error.Canceled is never returned
+// 有两种状态：
+//   .unblocked - 正常状态：取消点可以触发（默认）
+//   .blocked   - 受保护状态：不会返回 error.Canceled
 //
-// There's also io.checkCancel() - a pure cancellation point
-// that does nothing except return error.Canceled if a cancel
-// request is pending. Useful in long CPU-bound loops.
+// 还有 io.checkCancel()，这是一个纯取消点；如果有待处理的取消请求，
+// 它只会返回 error.Canceled。适用于耗时较长的 CPU 密集循环。
 //
-// And io.recancel() - re-arms a consumed cancel request so
-// the NEXT cancellation point will fire again.
+// io.recancel() 则会重新启用已消费的取消请求，让下一个取消点再次触发。
 //
-// Fix this program so the critical section completes even
-// when the task is canceled.
+// 请修复此程序，使临界区即使在任务被取消时也能完成。
 //
 const std = @import("std");
 const print = std.debug.print;
@@ -38,10 +33,10 @@ pub fn main(init: std.process.Init) !void {
     var future = io.async(importantTask, .{io});
     defer _ = future.cancel(io);
 
-    // Give the task time to start and enter its critical section.
+    // 给任务时间启动并进入临界区。
     io.sleep(std.Io.Duration.fromMilliseconds(200), .awake) catch {};
 
-    // Cancel while the task is in its protected section.
+    // 在任务处于受保护区段时取消它。
     const result = future.cancel(io);
     print("Task result: {s}\n", .{result});
 }
@@ -49,16 +44,16 @@ pub fn main(init: std.process.Init) !void {
 fn importantTask(io: std.Io) []const u8 {
     print("Starting critical section...\n", .{});
 
-    // Protect this section from cancellation.
-    // What method swaps the cancel protection state?
+    // 保护此区段，使其不受取消影响。
+    // 哪个方法可以切换取消保护状态？
     const old = io.???(.blocked);
     defer _ = io.???(old);
 
-    // This sleep will NOT return error.Canceled even though
-    // we get canceled during it - protection is active!
+    // 即使在休眠期间收到取消请求，这次休眠也不会返回 error.Canceled，
+    // 因为保护仍然有效！
     io.sleep(std.Io.Duration.fromMilliseconds(300), .awake) catch |err| switch (err) {
         error.Canceled => {
-            // This should never happen while protected!
+            // 处于保护状态时绝不会发生这种情况！
             return "ERROR: canceled during critical section!";
         },
     };

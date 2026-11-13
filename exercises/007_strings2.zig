@@ -1,15 +1,15 @@
 //
-// Here's a fun one: Zig has multi-line strings!
+// 来看个有趣的特性：Zig 支持多行字符串！
 //
-// To make a multi-line string, put '\\' at the beginning of each
-// line just like a code comment but with backslashes instead:
+// 要创建多行字符串，只需在每一行开头放置 '\\'，
+// 就像代码注释一样，只不过这里用的是反斜杠：
 //
 //     const two_lines =
 //         \\Line One
 //         \\Line Two
 //     ;
 //
-// See if you can make this program print some song lyrics.
+// 试试看能否让这个程序打印几句歌词。
 //
 const std = @import("std");
 

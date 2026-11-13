@@ -1,34 +1,29 @@
 //
-// Now that we know how to get an Io value, let's use it for
-// asynchronous execution!
+// 现在我们已经知道如何获取 Io 值，来用它执行异步任务吧！
 //
-// io.async() launches a function and returns a Future. The result
-// won't necessarily be available until you call .await() on it:
+// io.async() 会启动一个函数并返回 Future。调用其 .await() 之前，
+// 结果不一定已经准备好：
 //
 //     var future = io.async(someFunction, .{ arg1, arg2 });
 //     const result = future.await(io);
 //
-// The function *may* run immediately or on another thread -
-// your code doesn't need to care! That's the beauty of the
-// Io abstraction.
+// 函数*可能*立即运行，也可能在另一个线程上运行，代码无需关心！
+// 这正是 Io 抽象的优点。
 //
-// IMPORTANT: Every Future MUST be either .await()ed or .cancel()ed.
-// Failing to do so leaks resources! A safe pattern is:
+// 重要：每个 Future 都必须调用 .await() 或 .cancel()。
+// 否则会泄漏资源！一种稳妥的写法是：
 //
 //     var future = io.async(myFn, .{});
 //     defer _ = future.cancel(io);  // safety net
-//     // ... later, if we want the result:
+//     // ……稍后，如果需要结果：
 //     const result = future.await(io);
-//     // (await after cancel is fine - it just returns the result)
+//     //（cancel 后再 await 也没问题，只会返回结果）
 //
-// Both .await() and .cancel() block until the task finishes and
-// return the result. The difference is that .cancel() also
-// requests the task to stop at its next cancellation point.
-// Calling either one more than once is safe - subsequent calls
-// just return a copy of the result.
+// .await() 和 .cancel() 都会阻塞到任务结束并返回结果。
+// 区别在于 .cancel() 还会请求任务在下一个取消点停止。
+// 重复调用任一个方法都是安全的，后续调用只会返回结果副本。
 //
-// Fix this program so that computeAnswer runs asynchronously
-// and its result is properly awaited.
+// 请修复此程序，让 computeAnswer 异步运行并正确等待其结果。
 //
 const std = @import("std");
 const print = std.debug.print;
@@ -36,14 +31,13 @@ const print = std.debug.print;
 pub fn main(init: std.process.Init) !void {
     const io = init.io;
 
-    // Launch computeAnswer asynchronously.
+    // 异步启动 computeAnswer。
     var future = io.async(computeAnswer, .{ 6, 7 });
     defer _ = future.cancel(io); // always clean up!
 
     print("Computing... ", .{});
 
-    // Now collect the result. What method on Future gives us
-    // the value, blocking until it's ready?
+    // 现在获取结果。Future 的哪个方法会等待结果就绪并返回它？
     const answer = future.???(io);
 
     print("The answer is: {}\n", .{answer});

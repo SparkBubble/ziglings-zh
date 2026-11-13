@@ -1,22 +1,20 @@
 //
-// Now that we have optional types, we can apply them to structs.
-// The last time we checked in with our elephants, we had to link
-// all three of them together in a "circle" so that the last tail
-// linked to the first elephant. This is because we had NO CONCEPT
-// of a tail that didn't point to another elephant!
+// 学过可选类型后，我们可以把它们用于结构体。
+// 上次看大象时，我们必须把三头大象连成一个“环”，
+// 让最后一条象鼻连回第一头大象。这是因为当时我们完全没有
+// “象鼻不指向另一头大象”的概念！
 //
-// We also introduce the handy `.?` shortcut:
+// 我们还会介绍方便的 `.?` 简写：
 //
 //     const foo = bar.?;
 //
-// is the same as
+// 这等同于
 //
 //     const foo = bar orelse unreachable;
 //
-// Check out where we use this shortcut below to change control flow
-// based on if an optional value exists.
+// 看看下面如何使用这个简写，根据可选值是否存在来改变控制流。
 //
-// Now let's make those elephant tails optional!
+// 现在让我们把这些象鼻改成可选的！
 //
 const std = @import("std");
 
@@ -31,12 +29,12 @@ pub fn main() void {
     var elephantB = Elephant{ .letter = 'B' };
     var elephantC = Elephant{ .letter = 'C' };
 
-    // Link the elephants so that each tail "points" to the next.
+    // 连接大象，让每条象鼻都“指向”下一头大象。
     linkElephants(&elephantA, &elephantB);
     linkElephants(&elephantB, &elephantC);
 
-    // `linkElephants` will stop the program if you try and link an
-    // elephant that doesn't exist! Uncomment and see what happens.
+    // 如果尝试连接一头不存在的大象，`linkElephants` 会停止程序！
+    // 取消下面的注释，看看会发生什么。
     // const missingElephant: ?*Elephant = null;
     // linkElephants(&elephantC, missingElephant);
 
@@ -45,14 +43,13 @@ pub fn main() void {
     std.debug.print("\n", .{});
 }
 
-// If e1 and e2 are valid pointers to elephants,
-// this function links the elephants so that e1's tail "points" to e2.
+// 如果 e1 和 e2 是指向有效大象的指针，
+// 此函数会连接它们，让 e1 的象鼻“指向” e2。
 fn linkElephants(e1: ?*Elephant, e2: ?*Elephant) void {
     e1.?.tail = e2.?;
 }
 
-// This function visits all elephants once, starting with the
-// first elephant and following the tails to the next elephant.
+// 此函数从第一头大象开始，沿着象鼻访问下一头大象，遍历每头大象一次。
 fn visitElephants(first_elephant: *Elephant) void {
     var e = first_elephant;
 
@@ -60,12 +57,11 @@ fn visitElephants(first_elephant: *Elephant) void {
         std.debug.print("Elephant {u}. ", .{e.letter});
         e.visited = true;
 
-        // We should stop once we encounter a tail that
-        // does NOT point to another element. What can
-        // we put here to make that happen?
+        // 遇到不再指向其他大象的象鼻时，我们应该停止。
+        // 要怎样写才能做到这一点？
 
-        // HINT: We want something similar to what `.?` does,
-        // but instead of ending the program, we want to exit the loop...
+        // 提示：我们需要类似 `.?` 的效果，
+        // 但不是结束程序，而是退出循环……
         e = e.tail ???
     }
 }

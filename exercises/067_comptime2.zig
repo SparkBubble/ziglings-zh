@@ -1,40 +1,35 @@
 //
-// We've seen that Zig implicitly performs some evaluations at
-// compile time. But sometimes you'll want to explicitly request
-// compile time evaluation. For that, we have a new keyword:
+// 我们已经看到，Zig 会隐式地在编译时进行一些求值。
+// 但有时你会想明确要求在编译时求值。为此，我们有一个新关键字：
 //
 //  .     .   .      o       .          .       *  . .     .
 //    .  *  |     .    .            .   .     .   .     * .    .
 //        --o--            comptime        *    |      ..    .
 //     *    |       *  .        .    .   .    --*--  .     *  .
 //  .     .    .    .   . . .      .        .   |   .    .  .
-// (ASCII art depicting a starry sky with "comptime" as rising star)
+//（ASCII 图案描绘了星空中冉冉升起的 "comptime"）
 //
-// When placed before a variable declaration, 'comptime'
-// guarantees that every usage of that variable will be performed
-// at compile time.
+// 将 'comptime' 放在变量声明前，可以保证该变量的每次使用
+// 都会在编译时进行。
 //
-// As a simple example, compare these two statements:
+// 简单来说，比较下面两条语句：
 //
 //    var bar1 = 5;            // ERROR!
 //    comptime var bar2 = 5;   // OKAY!
 //
-// The first one gives us an error because Zig assumes mutable
-// identifiers (declared with 'var') will be used at runtime and
-// we have not assigned a runtime type (like u8 or f32). Trying
-// to use a comptime_int of undetermined size at runtime is
-// a MEMORY CRIME and you are UNDER ARREST.
+// 第一条会报错，因为 Zig 假设可变标识符（用 'var' 声明）会在运行时使用，
+// 而我们没有为它指定运行时类型（例如 u8 或 f32）。在运行时使用大小未定的
+// comptime_int 属于内存犯罪，你被逮捕了。
 //
-// The second one is okay because we've told Zig that 'bar2' is
-// a compile time variable. Zig will help us ensure this is true
-// and let us know if we make a mistake.
+// 第二条没有问题，因为我们告诉 Zig 'bar2' 是编译时变量。
+// Zig 会帮我们确保这一点，并在我们出错时告知。
 //
 const print = @import("std").debug.print;
 
 pub fn main() void {
     //
-    // In this contrived example, we've decided to allocate some
-    // arrays using a variable count! But something's missing...
+    // 在这个刻意构造的例子中，我们决定用一个变量计数来分配数组！
+    // 但还缺了点什么……
     //
     var count = 0;
 
@@ -52,14 +47,12 @@ pub fn main() void {
 
     print("{s} {s} {s} {s}\n", .{ a1, a2, a3, a4 });
 
-    // Builtin BONUS!
+    // 内置函数奖励内容！
     //
-    // The @compileLog() builtin is like a print statement that
-    // ONLY operates at compile time. The Zig compiler treats
-    // @compileLog() calls as errors, so you'll want to use them
-    // temporarily to debug compile time logic.
+    // 内置函数 @compileLog() 类似 print 语句，但它只在编译时运行。
+    // Zig 编译器会将 @compileLog() 调用视为错误，因此你应该临时使用它
+    // 来调试编译时逻辑。
     //
-    // Try uncommenting this line and playing around with it
-    // (copy it, move it) to see what it does:
+    // 试着取消这一行的注释并调整它（复制、移动），看看它会做什么：
     //@compileLog("Count at compile time: ", count);
 }

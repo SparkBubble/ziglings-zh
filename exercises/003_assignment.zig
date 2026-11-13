@@ -1,35 +1,35 @@
 //
-// It seems we got a little carried away making everything "const u8"!
+// 看来我们有点过头了，把所有东西都写成了 "const u8"！
 //
-//     "const" values cannot change.
-//     "u"     types are "unsigned" and cannot store negative values.
-//     "8"     means the type is 8 bits in size.
+//     "const" 值不可更改。
+//     "u"     表示无符号类型，不能存储负数。
+//     "8"     表示该类型占 8 位。
 //
-// Example: foo cannot change (it is CONSTant)
-//          bar can change (it is VARiable):
+// 示例：foo 不能更改（它是常量）
+//       bar 可以更改（它是变量）：
 //
 //     const foo: u8 = 20;
 //     var bar: u8 = 20;
 //
-// Example: foo cannot be negative and can hold 0 to 255
-//          bar CAN be negative and can hold -128 to 127
+// 示例：foo 不能为负数，范围是 0 到 255
+//       bar 可以为负数，范围是 -128 到 127
 //
 //     const foo: u8 = 20;
 //     const bar: i8 = -20;
 //
-// Example: foo can hold 8 bits (0 to 255)
-//          bar can hold 16 bits (0 to 65,535)
+// 示例：foo 可存储 8 位值（0 到 255）
+//       bar 可存储 16 位值（0 到 65,535）
 //
 //     const foo: u8 = 20;
 //     const bar: u16 = 2000;
 //
-// You can do just about any combination of these that you can think of:
+// 这些类型几乎可以按你想到的任何方式组合使用：
 //
-//     u32 can hold 0 to 4,294,967,295
-//     i64 can hold -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807
+//     u32 可表示 0 到 4,294,967,295
+//     i64 可表示 -9,223,372,036,854,775,808 到 9,223,372,036,854,775,807
 //
-// Please fix this program so that the types can hold the desired values
-// and the errors go away!
+// 请修正这个程序，让类型能够容纳所需的值，
+// 并消除所有错误！
 //
 const std = @import("std");
 
@@ -41,11 +41,9 @@ pub fn main() void {
 
     const negative_eleven: u8 = -11;
 
-    // There are no errors in the next line, just explanation:
-    // Perhaps you noticed before that the print function takes two
-    // parameters. Now it will make more sense: the first parameter
-    // is a string. The string may contain placeholders '{}', and the
-    // second parameter is an "anonymous list literal" (don't worry
-    // about this for now!) with the values to be printed.
+    // 下一行没有错误，这里只是解释一下：
+    // 你可能已经注意到，print 函数接受两个参数。现在应该更清楚了：
+    // 第一个参数是字符串。字符串中可以包含占位符 '{}'，第二个参数
+    // 是一个包含待打印值的“匿名列表字面量”（暂时不用担心这个概念！）。
     std.debug.print("{} {} {}\n", .{ n, pi, negative_eleven });
 }

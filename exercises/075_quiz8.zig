@@ -1,11 +1,10 @@
 //
-// Quiz Time!
+// 测验时间！
 //
-// Let's revisit the Hermit's Map from Quiz 7.
+// 我们来重新看看测验 7 中隐士的地图。
 //
-// Oh, don't worry, it's not nearly as big without all the
-// explanatory comments. And we're only going to change one part
-// of it.
+// 别担心，去掉所有解释性注释后，代码没有那么长。
+// 而且我们只会改动其中一部分。
 //
 const print = @import("std").debug.print;
 
@@ -23,9 +22,8 @@ var d = Place{ .name = "Dogwood Grove" };
 var e = Place{ .name = "East Pond" };
 var f = Place{ .name = "Fox Pond" };
 
-// Remember how we didn't have to declare the numeric type of the
-// place_count because it is only used at compile time? That
-// probably makes a lot more sense now. :-)
+// 还记得 place_count 只在编译时使用，所以不必声明数值类型吗？
+// 现在你应该更明白原因了。:-)
 const place_count = 6;
 
 const Path = struct {
@@ -34,8 +32,7 @@ const Path = struct {
     dist: u8,
 };
 
-// Okay, so as you may recall, we had to create each Path struct
-// by hand and each one took 5 lines of code to define:
+// 好，回忆一下：我们必须手动创建每个 Path 结构体，每个都要写五行代码：
 //
 //    Path{
 //        .from = &a, // from: Archer's Point
@@ -43,15 +40,12 @@ const Path = struct {
 //        .dist = 2,
 //    },
 //
-// Well, armed with the knowledge that we can run code at compile
-// time, we can perhaps shorten this a bit with a simple function
-// instead.
+// 现在知道代码可以在编译时运行了，也许我们可以用一个简单函数来缩短这些定义。
 //
-// Please fill in the body of this function!
+// 请补全这个函数体！
 fn makePath(from: *Place, to: *Place, dist: u8) Path {}
 
-// Using our new function, these path definitions take up considerably less
-// space in our program now!
+// 使用新函数后，这些路径定义在程序中占用的空间少多了！
 const a_paths = [_]Path{makePath(&a, &b, 2)};
 const b_paths = [_]Path{ makePath(&b, &a, 2), makePath(&b, &d, 1) };
 const c_paths = [_]Path{ makePath(&c, &d, 3), makePath(&c, &e, 2) };
@@ -59,21 +53,18 @@ const d_paths = [_]Path{ makePath(&d, &b, 1), makePath(&d, &c, 3), makePath(&d, 
 const e_paths = [_]Path{ makePath(&e, &c, 2), makePath(&e, &f, 1) };
 const f_paths = [_]Path{makePath(&f, &d, 7)};
 //
-// But is it more readable? That could be argued either way.
+// 但这样更易读吗？对此见仁见智。
 //
-// We've seen that it is possible to parse strings at compile
-// time, so the sky's really the limit on how fancy we could get
-// with this.
+// 我们已经看到可以在编译时解析字符串，因此这种方法能有多复杂，几乎没有限制。
 //
-// For example, we could create our own "path language" and
-// create Paths from that. Something like this, perhaps:
+// 例如，我们可以创建自己的“路径语言”，并据此创建 Path。比如这样：
 //
 //    a -> (b[2])
 //    b -> (a[2] d[1])
 //    c -> (d[3] e[2])
 //    ...
 //
-// Feel free to implement something like that as a SUPER BONUS EXERCISE!
+// 欢迎把它作为超级额外练习来实现！
 
 const TripItem = union(enum) {
     place: *const Place,
@@ -152,7 +143,7 @@ pub fn main() void {
     const start = &a; // Archer's Point
     const destination = &f; // Fox Pond
 
-    // We could either have this:
+    // 我们可以这样写：
     //
     //   a.paths = a_paths[0..];
     //   b.paths = b_paths[0..];
@@ -161,7 +152,7 @@ pub fn main() void {
     //   e.paths = e_paths[0..];
     //   f.paths = f_paths[0..];
     //
-    // or this comptime wizardry:
+    // 也可以使用这种 comptime 巫术：
     //
     const letters = [_][]const u8{ "a", "b", "c", "d", "e", "f" };
     inline for (letters) |letter| {

@@ -1,44 +1,35 @@
 //
-// Zig has builtins for mathematical operations such as...
+// Zig 有用于数学运算的内置函数，例如……
 //
 //      @sqrt        @sin           @cos
 //      @exp         @log           @floor
 //
-// ...and lots of type casting operations such as...
+// ……还有许多类型转换操作，例如……
 //
 //      @as          @errorFromInt  @floatFromInt
 //      @ptrFromInt  @intFromPtr    @backingInt
 //
-// Spending part of a rainy day skimming through the complete
-// list of builtins in the official Zig documentation wouldn't be
-// a bad use of your time. There are some seriously cool features
-// in there. Check out @call, @compileLog, @embedFile, and @src!
+// 雨天时花点时间浏览 Zig 官方文档中的完整内置函数列表，也很值得。
+// 里面有一些非常酷的功能。看看 @call、@compileLog、@embedFile 和 @src！
 //
 //                            ...
 //
-// For now, we're going to complete our examination of builtins
-// by exploring just THREE of Zig's MANY introspection abilities:
+// 现在我们只探索 Zig 众多内省能力中的三个，以此结束对内置函数的介绍：
 //
-// 1. @This() type
+// 1. @This() 类型
 //
-// Returns the innermost struct, enum, or union that a function
-// call is inside.
+// 返回函数调用所在的最内层结构体、枚举或联合体。
 //
 // 2. @typeInfo(comptime T: type) @import("std").builtin.Type
 //
-// Returns information about any type in a data structure which
-// will contain different information depending on which type
-// you're examining.
+// 返回数据结构中任意类型的信息；根据检查的类型不同，所含信息也不同。
 //
-// 3. @TypeOf(...) type
+// 3. @TypeOf(...) 类型
 //
-// Returns the type common to all input parameters (each of which
-// may be any expression). The type is resolved using the same
-// "peer type resolution" process the compiler itself uses when
-// inferring types.
+// 返回所有输入参数共有的类型（每个参数可以是任意表达式）。类型会通过“同级类型解析”确定，
+// 这与编译器推断类型时使用的过程相同。
 //
-// (Notice how the two functions which return types start with
-// uppercase letters? This is a standard naming practice in Zig.)
+//（注意，返回类型的两个函数都以大写字母开头？这是 Zig 中的标准命名习惯。）
 //
 const print = @import("std").debug.print;
 
@@ -55,24 +46,20 @@ const Narcissus = struct {
 pub fn main() void {
     var narcissus: Narcissus = Narcissus{};
 
-    // Oops! We cannot leave the 'me' and 'myself' fields
-    // undefined. Please set them here:
+    // 哎呀！'me' 和 'myself' 字段不能保持 undefined。请在这里设置它们：
     narcissus.me = &narcissus;
     narcissus.??? = ???;
 
-    // This determines a "peer type" from three separate
-    // references (they just happen to all be the same object).
+    // 这里从三个不同引用中确定一个“同级类型”（它们恰巧都指向同一个对象）。
     const Type1 = @TypeOf(narcissus, narcissus.me.*, narcissus.myself.*);
 
-    // Oh dear, we seem to have done something wrong when calling
-    // this function. We called it as a method, which would work
-    // if it had a self parameter. But it doesn't. (See above.)
+    // 糟了，调用这个函数时似乎出错了。我们把它当作方法调用；如果它有 self 参数，
+    // 这样调用就行。但它没有。（见上文。）
     //
-    // The fix for this is very subtle, but it makes a big
-    // difference!
+    // 修正方法很微妙，但影响很大！
     const Type2 = narcissus.FetchTheMostBeautifulType();
 
-    // Now we print a pithy statement about Narcissus.
+    // 现在打印一句关于纳西瑟斯的精辟话语。
     print("A {s} loves all {s}es. ", .{
         maximumNarcissism(Type1),
         maximumNarcissism(Type2),
@@ -89,19 +76,18 @@ pub fn main() void {
     //                   "Farewell!"
     //
     //     --Ovid, The Metamorphoses
-    //       translated by Ian Johnston
+    //       译者：Ian Johnston
 
     print("He has room in his heart for:", .{});
 
-    // `field_names` is a slice of strings and it holds the names of the struct's fields
-    // `field_types` is a slice of types and it holds the types of the struct's fields,
-    //               it is guaranteed to be the same length as `field_names`
+    // `field_names` 是字符串切片，保存结构体字段的名称。
+    // `field_types` 是类型切片，保存结构体字段的类型，
+    //               保证与 `field_names` 长度相同。
     const field_names = @typeInfo(Narcissus).@"struct".field_names;
     const field_types = @typeInfo(Narcissus).@"struct".field_types;
 
-    // Please complete these 'if' statements so that the field
-    // name will not be printed if the field is of type 'void'
-    // (which is a zero-bit type that takes up no space at all!):
+    // 请补全这些 'if' 语句：如果字段类型为 'void'，就不打印字段名。
+    //（void 是零位类型，完全不占空间！）
     if (field_???[???] != void) {
         print(" {s}", .{field_???[???]});
     }
@@ -114,32 +100,26 @@ pub fn main() void {
         print(" {s}", .{field_???[???]});
     }
 
-    // Yuck, look at all that repeated code above! I don't know
-    // about you, but it makes me itchy.
+    // 啧，看看上面这些重复代码！不知道你怎么想，反正我浑身不自在。
     //
-    // Alas, we can't use a regular 'for' loop here because
-    // 'fields' can only be evaluated at compile time.  It seems
-    // like we're overdue to learn about this "comptime" stuff,
-    // doesn't it? Don't worry, we'll get there.
+    // 唉，这里不能用普通的 'for' 循环，因为 'fields' 只能在编译时求值。
+    // 看来我们早该学习 "comptime" 了，对吧？别担心，很快就会讲到。
 
     print(".\n", .{});
 }
 
-// NOTE: This exercise did not originally include the function below.
-// After Zig 0.10.0, `@typeName` began prefixing the returned type name
-// with the source file name. For example, "Narcissus" became
-// "065_builtins2.Narcissus".
+// 注意：这个练习最初不包含下面的函数。Zig 0.10.0 之后，`@typeName` 开始在返回的类型名前
+// 加上源文件名。例如，"Narcissus" 变成了 "065_builtins2.Narcissus"。
 //
-// To fix this, we've added this function to strip the filename from
-// the front of the type name. (It returns a slice of the type name
-// starting just after the ".")
+// 为了解决这个问题，我们添加了这个函数来去掉类型名前的文件名。
+//（它会返回从 "." 之后开始的类型名切片。）
 //
-// We'll be seeing @typeName again in Exercise 070. For now, you can
-// see that it takes a Type and returns a u8 "string".
+// 我们会在练习 070 再次见到 @typeName。现在你可以看到，它接受一个 Type，
+// 并返回一个 u8“字符串”。
 fn maximumNarcissism(myType: type) []const u8 {
     const find = @import("std").mem.find;
 
-    // Turn "065_builtins2.Narcissus" into "Narcissus"
+    // 将 "065_builtins2.Narcissus" 转换为 "Narcissus"
     const name = @typeName(myType);
     return name[find(u8, name, ".").? + 1 ..];
 }

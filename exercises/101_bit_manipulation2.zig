@@ -1,64 +1,54 @@
 //
-// Another useful application for bit manipulation is setting bits as flags.
-// This is especially useful when processing lists of something and storing
-// the states of the entries, e.g. a list of numbers and for each prime
-// number a flag is set.
+// 位操作的另一个用途是将位设为标志。
+// 这在处理列表并保存各项状态时尤其有用，例如在数字列表中为每个质数设置标志。
 //
-// As an example, let's take the Pangram exercise from Exercism:
+// 例如，来看看 Exercism 上的 Pangram 练习：
 // https://exercism.org/tracks/zig/exercises/pangram
 //
-// A pangram is a sentence using every letter of the alphabet at least once.
-// It is case insensitive, so it doesn't matter if a letter is lower-case
-// or upper-case. The best known English pangram is:
+// 全字母句是指至少使用一次字母表中每个字母的句子。
+// 它不区分大小写。最著名的英语全字母句是：
 //
 //           "The quick brown fox jumps over the lazy dog."
 //
-// There are several ways to select the letters that appear in the pangram
-// (and it doesn't matter if they appear once or several times).
+// 有几种方法可以记录全字母句中出现过的字母（出现一次或多次都无所谓）。
 //
-// For example, you could take an array of bool and set the value to 'true'
-// for each letter in the order of the alphabet (a=0; b=1; etc.) found in
-// the sentence. However, this is neither memory efficient nor particularly
-// fast. Instead we choose a simpler approach that is very similar in principle:
-// We define a variable with at least 26 bits (e.g. u32) and set the bit for
-// each letter that is found in the corresponding position.
+// 例如，可以创建一个 bool 数组，对句子中出现的每个字母将对应位置设为 'true'
+//（按字母顺序，a=0、b=1 等）。但这种方法既不节省内存，也不够快。
+// 我们改用原理相近但更简单的方法：定义一个至少有 26 位的变量（如 u32），
+// 并将每个字母对应位置的位设为 1。
 //
-// Zig provides functions for this in the standard library, but we prefer to
-// solve it without these extras, after all we want to learn something.
+// Zig 标准库提供了相关函数，但为了学到东西，我们还是不用这些额外帮助。
 //
 const std = @import("std");
 const ascii = std.ascii;
 const print = std.debug.print;
 
 pub fn main() !void {
-    // let's check the pangram
+    // 检查是否为全字母句
     print("Is this a pangram? {}!\n", .{isPangram("The quick brown fox jumps over the lazy dog.")});
 }
 
 fn isPangram(str: []const u8) bool {
-    // first we check if the string has at least 26 characters
+    // 首先检查字符串是否至少有 26 个字符
     if (str.len < 26) return false;
 
-    // we use a 32 bit variable of which we need 26 bits
+    // 使用一个 32 位变量，其中需要用到 26 位
     var bits: u32 = 0;
 
-    // loop about all characters in the string
+    // 遍历字符串中的所有字符
     for (str) |c| {
-        // if the character is an alphabetical character
+        // 如果字符是字母
         if (ascii.isAscii(c) and ascii.isAlphabetic(c)) {
-            // then we set the bit at the position
+            // 就将对应位置的位设为 1
             //
-            // to do this, we use a little trick:
-            // since the letters in the ASCII table start at 65
-            // and are numbered sequentially, we simply subtract the
-            // first letter (in this case the 'a') from the character
-            // found, and thus get the position of the desired bit
+            // 这里用一个小技巧：ASCII 表中的字母从 65 开始，且按顺序编号，
+            // 因此只要用当前字符减去首字母（此处为 'a'），
+            // 就能得到目标位的位置。
             bits |= @as(u32, 1) << @truncate(ascii.toLower(c) - 'a');
         }
     }
-    // last we return the comparison if all 26 bits are set,
-    // and if so, we know the given string is a pangram
+    // 最后检查 26 位是否全部置位；如果是，就知道给定字符串是全字母句。
     //
-    // but what do we have to compare?
+    // 但我们应该比较什么？
     return bits == 0x???;
 }

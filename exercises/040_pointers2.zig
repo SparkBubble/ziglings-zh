@@ -1,23 +1,19 @@
 //
-// It's important to note that variable pointers and constant pointers
-// are different types.
+// 需要注意，变量指针和常量指针是不同的类型。
 //
-// Given:
+// 已知：
 //
 //     var foo: u8 = 5;
 //     const bar: u8 = 5;
 //
-// Then:
+// 那么：
 //
-//     &foo is of type "*u8"
-//     &bar is of type "*const u8"
+//     &foo 的类型是 "*u8"
+//     &bar 的类型是 "*const u8"
 //
-// You can always make a const pointer to a mutable value (var), but
-// you cannot make a var pointer to an immutable value (const).
-// This sounds like a logic puzzle, but it just means that once data
-// is declared immutable, you can't coerce it to a mutable type.
-// Think of mutable data as being volatile or even dangerous. Zig
-// always lets you be "more safe" and never "less safe."
+// 你总是可以用常量指针指向可变值（var），但不能用变量指针指向不可变值（const）。
+// 这听起来像逻辑谜题，其实只是说：数据一旦声明为不可变，就不能强制转换成可变类型。
+// 可以把可变数据想成易变甚至危险的东西。Zig 总是让你变得“更安全”，绝不会“更不安全”。
 //
 const std = @import("std");
 
@@ -28,18 +24,15 @@ pub fn main() void {
     std.debug.print("a: {}, b: {}\n", .{ a, b.* });
 }
 //
-// A look into the future:
-// When you allocate memory, you store the returned address in
-// a const var. The pointer itself never changes - it always
-// refers to the same allocation - but you can still read and
-// write the data it points to.
+// 先预览一下后面的内容：
+// 分配内存时，可以将返回的地址存入 const 变量。指针本身不会改变——
+// 它始终指向同一块分配的内存——但仍然可以读写它所指向的数据。
 //
-// Example:
+// 示例：
 //
 //     const buf = try allocator.alloc(u8, 1024);
-//     buf[0] = 42;  // fine: the *contents* are mutable
+//     buf[0] = 42;  // 没问题：*内容*是可变的
 //
-// Note:
-// Passing this pointer to a function is cheap: it's just an address
-// copied on the stack. The caller can work with the data without
-// needing to know where it came from or how it was allocated.
+// 注意：
+// 将这个指针传给函数的开销很小：只是在栈上复制一个地址。
+// 调用方可以直接操作数据，而不必知道数据来自哪里或如何分配。

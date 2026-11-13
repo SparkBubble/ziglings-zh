@@ -6,58 +6,49 @@
 //     from The Call of Cthulhu
 //       by H. P. Lovecraft
 //
-// Zig has at least four ways of expressing "no value":
+// Zig 至少有四种表示“无值”的方式：
 //
 // * undefined
 //
 //       var foo: u8 = undefined;
 //
-//       "undefined" should not be thought of as a value, but as a way
-//       of telling the compiler that you are not assigning a value
-//       _yet_. Any variable may be set to undefined, but attempting to
-//       read its value before assigning one is _always_ a mistake.
+//       不要把 "undefined" 当作一个值，它是在告诉编译器你现在_还没有_赋值。
+//       任何变量都可以设为 undefined，但在赋值前尝试读取它的值_总是_错误的。
 //
 // * null
 //
 //       var foo: ?u8 = null;
 //
-//       The "null" primitive value _is_ a value that means "no value".
-//       This is typically used with optional types as with the ?u8
-//       shown above. When foo equals null, that's not a value of type
-//       u8. It means you have assigned foo to have _no value_!
+//       "null" 这个原始值_本身就是_表示“无值”的值。
+//       它通常与可选类型一起使用，例如上面的 ?u8。foo 等于 null 时，
+//       它就不是 u8 类型的值，而是表示你给 foo 赋了_无值_！
 //
 // * error
 //
 //       var foo: MyError!u8 = BadError;
 //
-//       Errors are _very_ similar to nulls. They _are_ a value, but
-//       they usually indicate that the "real value" you were looking
-//       for does not exist. Instead of "no value", you have an error.
-//       The example error union type of MyError!u8 means that foo
-//       either holds a u8 value OR a MyError error.
+//       错误和 null_非常_相似。它们_也是_值，但通常表示你要找的“实际值”不存在。
+//       这时得到的不是“无值”，而是一个错误。示例错误联合类型 MyError!u8
+//       表示 foo 存储的要么是 u8 值，要么是 MyError 错误。
 //
 // * void
 //
 //       var foo: void = {};
 //
-//       "void" is a _type_, not a value. It is the most popular of the
-//       Zero Bit Types (those types which take up absolutely no space
-//       and have only a semantic value). When compiled to executable
-//       code, zero bit types generate no code at all. The above example
-//       shows a variable foo of type void which is assigned the value
-//       of an empty expression. It's much more common to see void as
-//       the return type of a function that returns nothing.
+//       "void" 是一种_类型_，而不是值。它是零位类型中最常见的一种
+//      （这类类型完全不占空间，只具有语义上的意义）。编译为可执行代码时，
+//       零位类型不会生成任何代码。上例将空表达式的值赋给 void 类型变量 foo。
+//       更常见的情况是用 void 作为不返回值的函数的返回类型。
 //
-// Zig has all of these ways of expressing different types of "no value"
-// because they each serve a purpose. Briefly:
+// Zig 提供这些表示不同“无值”情况的方式，是因为它们各有用途。简而言之：
 //
-//   * undefined - there is no value YET, this cannot be read YET
-//   * null      - there is an explicit value of "no value"
-//   * errors    - there is no value because something went wrong
-//   * void      - there will NEVER be a value here
+//   * undefined - 目前还没有值，所以目前还不能读取
+//   * null      - 明确表示“无值”的值
+//   * errors    - 因为出错而没有值
+//   * void      - 这里永远不会有值
 //
-// Please use the correct "no value" for each ??? to make this program
-// print out a cursed quote from the Necronomicon. ...If you dare.
+// 请为每个 ??? 选择正确的“无值”表示，让程序打印《死灵之书》中的诅咒引文。
+// ……如果你敢的话。
 //
 const std = @import("std");
 
@@ -70,7 +61,7 @@ pub fn main() void {
     var first_line2: Err!*const [21]u8 = ???;
     first_line2 = "which can eternal lie";
 
-    // Note we need the "{!s}" format for the error union string.
+    // 注意，错误联合类型的字符串需要使用 "{!s}" 格式。
     std.debug.print("{s} {!s} / ", .{ first_line1, first_line2 });
 
     printSecondLine();

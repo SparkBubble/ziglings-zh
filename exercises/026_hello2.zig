@@ -1,40 +1,34 @@
 //
-// Great news! Now we know enough to understand a "real" Hello World
-// program in Zig - one that uses the system Standard Out resource...which
-// can fail!
+// 好消息！现在我们已经掌握了足够的知识，可以理解 Zig 中“真正的”Hello World
+// 程序了——它使用系统标准输出资源……而这可能会失败！
 //
 const std = @import("std");
 
-// Take note that this main() definition now returns "!void" rather
-// than just "void". Since there's no specific error type, this means
-// that Zig will infer the error type. This is appropriate in the case
-// of main(), but can make a function harder (function pointers) or
-// even impossible to work with (recursion) in some situations.
+// 注意，现在 main() 的定义返回 "!void"，而不只是 "void"。
+// 由于没有指定错误类型，Zig 会推断错误类型。这适用于 main()，
+// 但在某些情况下会让函数更难（函数指针）甚至无法使用（递归）。
 //
-// You can find more information at:
+// 更多信息请参阅：
 // https://ziglang.org/documentation/master/#Inferred-Error-Sets
 //
 pub fn main(init: std.process.Init) !void {
-    // Instance for input/output operations; we will learn more about this later.
+    // 输入输出操作的实例；我们稍后会进一步了解。
     const io = init.io;
 
-    // We get a Writer for Standard Out...
+    // 获取标准输出的 Writer……
     var stdout_writer = std.Io.File.stdout().writer(io, &.{});
-    // ...and extract its interface so we can print() to it.
+    // ……并提取它的接口，这样就能向其 print()。
     const stdout = &stdout_writer.interface;
 
-    // Unlike std.debug.print(), the Standard Out writer can fail
-    // with an error. We don't care _what_ the error is, we want
-    // to be able to pass it up as a return value of main().
+    // 与 std.debug.print() 不同，标准输出 Writer 可能会出错。
+    // 我们不在意具体是什么错误，只希望能将它作为 main() 的返回值向上传递。
     //
-    // We just learned of a single statement which can accomplish this.
+    // 我们刚学过一个可以完成这件事的语句。
     stdout.print("Hello world!\n", .{});
 }
 
-// Now you must be thinking "Why would I need to do this instead of good
-// old 'std.debug.print()'?", but here's what you need to understand:
-// 'std.debug.print()' prints its output to stderr, while the stdout_writer
-// approach prints to stdout.
-// A common practice is to pipe output of a command to other commands,
-// and in order for the piping to work, those commands expect their input
-// to come from stdout, not stderr.
+// 你现在可能会想：“为什么要这么做，而不用熟悉的 'std.debug.print()' 呢？”
+// 需要理解的是：'std.debug.print()' 将内容输出到 stderr，
+// 而使用 stdout_writer 的方式会输出到 stdout。
+// 常见做法是将一个命令的输出通过管道传给其他命令；要让管道正常工作，
+// 后续命令期望输入来自 stdout，而不是 stderr。

@@ -1,13 +1,11 @@
 //
-// Quiz time again! Let's see if you can solve the famous "Fizz Buzz"!
+// 又到测验时间！看看你能否解出著名的“Fizz Buzz”问题！
 //
-//     "Players take turns to count incrementally, replacing
-//      any number divisible by three with the word "fizz",
-//      and any number divisible by five with the word "buzz".
-//          - From https://en.wikipedia.org/wiki/Fizz_buzz
+//     "玩家轮流递增报数，遇到能被 3 整除的数字时说 "fizz"，
+//      遇到能被 5 整除的数字时说 "buzz"。
+//          - 摘自 https://en.wikipedia.org/wiki/Fizz_buzz
 //
-// Let's go from 1 to 16. This has been started for you, but there
-// are some problems. :-(
+// 我们从 1 数到 16。代码已经为你起了个头，不过还有些问题。:-(
 //
 const std = import standard library;
 
@@ -15,7 +13,7 @@ function main() void {
     var i: u8 = 1;
     const stop_at: u8 = 16;
 
-    // What kind of loop is this? A 'for' or a 'while'?
+    // 这是哪种循环？'for' 还是 'while'？
     ??? (i <= stop_at) : (i += 1) {
         if (i % 3 == 0) std.debug.print("Fizz", .{});
         if (i % 5 == 0) std.debug.print("Buzz", .{});

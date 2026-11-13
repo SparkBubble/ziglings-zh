@@ -1,18 +1,18 @@
 //
-// Oh no, this is supposed to print "Hello world!" but it needs
-// your help.
+// 糟了，这段程序本应打印 "Hello world!"，但还需要
+// 你的帮助。
 //
-// Zig functions are private by default, but the main() function
-// must be public.
+// Zig 函数默认是私有的，但 main() 函数
+// 必须是公开的。
 //
-// A function is made public with the "pub" statement like so:
+// 使用 "pub" 关键字可以将函数声明为公开，示例如下：
 //
 //     pub fn foo() void {
 //         ...
 //     }
 //
-// Perhaps knowing this will help solve the errors we're getting
-// with this little program?
+// 了解这一点，也许就能帮你解决这个小程序
+// 中遇到的错误？
 //
 const std = @import("std");
 

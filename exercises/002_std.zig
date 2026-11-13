@@ -1,14 +1,13 @@
 //
-// Oops! This program is supposed to print a line like our Hello World
-// example. But we forgot how to import the Zig Standard Library.
+// 哎呀！这个程序本应像 Hello World 示例那样打印一行内容，
+// 但我们忘了如何导入 Zig 标准库。
 //
-// The @import() function is built into Zig. It returns a value which
-// represents the imported code. It's a good idea to store the import as
-// a constant value with the same name as the import:
+// @import() 是 Zig 内置函数。它会返回一个表示所导入代码的值。
+// 最好用一个与导入项同名的常量来保存它：
 //
 //     const foo = @import("foo");
 //
-// Please complete the import below:
+// 请补全下面的导入语句：
 //
 
 ??? = @import("std");
@@ -17,8 +16,7 @@ pub fn main() void {
     std.debug.print("Standard Library.\n", .{});
 }
 
-// For the curious: Imports must be declared as constants because they
-// can only be used at compile time rather than run time. Zig evaluates
-// constant values at compile time. Don't worry, we'll cover imports
-// in detail later.
-// Also see this answer: https://stackoverflow.com/a/62567550/695615
+// 补充说明：导入项必须声明为常量，因为它们只能在编译时使用，
+// 不能在运行时使用。Zig 会在编译时求出常量的值。别担心，
+// 后面我们会详细讲解导入。
+// 另请参阅这个解答：https://stackoverflow.com/a/62567550/695615

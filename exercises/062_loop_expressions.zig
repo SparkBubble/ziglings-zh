@@ -1,35 +1,29 @@
 //
-// Remember using if/else statements as expressions like this?
+// 还记得像这样把 if/else 语句当作表达式吗？
 //
 //     var foo: u8 = if (true) 5 else 0;
 //
-// Zig also lets you use for and while loops as expressions.
+// Zig 也允许把 for 和 while 循环当作表达式。
 //
-// Like 'return' for functions, you can return a value from a
-// loop block with break:
+// 类似函数中的 'return'，可以用 break 从循环代码块返回一个值：
 //
-//     break true; // return boolean value from block
+//     break true; // 从代码块返回布尔值
 //
-// But what value is returned from a loop if a break statement is
-// never reached? We need a default expression. Thankfully, Zig
-// loops also have 'else' clauses! As you might have guessed, the
-// 'else' clause is evaluated when: 1) a 'while' condition becomes
-// false or 2) a 'for' loop runs out of items.
+// 如果循环从未执行到 break，会返回什么值？我们需要一个默认表达式。
+// 幸好 Zig 循环也有 'else' 分支！你可能已经猜到，以下情况会执行 'else'：
+// 1) 'while' 条件变为假；2) 'for' 循环遍历完所有项目。
 //
 //     const two: u8 = while (true) break 2 else 0;         // 2
 //     const three: u8 = for ([1]u8{1}) |f| break 3 else 0; // 3
 //
-// If you do not provide an else clause, an empty one will be
-// provided for you, which will evaluate to the void type, which
-// is probably not what you want. So consider the else clause
-// essential when using loops as expressions.
+// 如果没有提供 else 分支，编译器会补上一个空分支，其结果是 void 类型，
+// 这可能不是你想要的。因此，将循环用作表达式时，else 分支不可或缺。
 //
 //     const four: u8 = while (true) {
 //         break 4;
-//     };               // <-- ERROR! Implicit 'else void' here!
+//     };               // <-- 错误！这里隐式使用了 'else void'！
 //
-// With that in mind, see if you can fix the problem with this
-// program.
+// 记住这一点，看看能否修复这个程序的问题。
 //
 const print = @import("std").debug.print;
 
@@ -43,8 +37,7 @@ pub fn main() void {
         "Prolog",
     };
 
-    // Let's find the first language with a three-letter name and
-    // return it from the for loop.
+    // 找到第一个名称由三个字母组成的语言，并从 for 循环中返回它。
     const current_lang: ?[]const u8 = for (langs) |lang| {
         if (lang.len == 3) break lang;
     };

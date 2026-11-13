@@ -1,49 +1,42 @@
 //
-// Now that we've learned about arrays, we can talk about strings.
+// 学过数组后，我们来聊聊字符串。
 //
-// We've already seen Zig string literals: "Hello world.\n"
+// 我们已经见过 Zig 字符串字面量："Hello world.\n"
 //
-// Zig stores strings as arrays of bytes.
+// Zig 将字符串存储为字节数组。
 //
 //     const foo = "Hello";
 //
-// Is almost* the same as:
+// 几乎*等同于：
 //
 //     const foo = [_]u8{ 'H', 'e', 'l', 'l', 'o' };
 //
-// (* We'll see what Zig strings REALLY are in Exercise 77.)
+//（* 我们会在练习 77 中了解 Zig 字符串的真正含义。）
 //
-// Notice how individual characters use single quotes ('H') and
-// strings use double quotes ("H"). These are not interchangeable!
+// 注意，单个字符使用单引号 ('H')，字符串使用双引号 ("H")。
+// 两者不能互换！
 //
 const std = @import("std");
 
 pub fn main() void {
     const ziggy = "stardust";
 
-    // (Problem 1)
-    // Use array square bracket syntax to get the letter 'd' from
-    // the string "stardust" above.
+    //（问题 1）使用数组方括号语法，从上面的 "stardust" 中取出字母 'd'。
     const d: u8 = ziggy[???];
 
-    // (Problem 2)
-    // Use the array concatenation '++' operator to make "Major Tom".
-    // (You'll need to add a space as well!)
+    //（问题 2）使用数组拼接运算符 '++' 组成 "Major Tom"。（还需要加空格！）
     const major = "Major";
     const tom = "Tom";
     const major_tom = major ??? tom;
 
-    // That's all the problems. Let's see our results:
+    // 问题就这些。来看看结果：
     std.debug.print("d={u} {s}\n", .{ d, major_tom });
-    // Keen eyes will notice that we've put 'u' and 's' inside the '{}'
-    // placeholders in the format string above. This tells the
-    // print() function to format the values as a UTF-8 character and
-    // UTF-8 strings respectively. If we didn't do this, we'd see '100',
-    // which is the decimal number corresponding with the 'd' character
-    // in UTF-8. (And an error in the case of the strings.)
+    // 细心的你会发现，我们在格式字符串的 '{}' 占位符中放入了 'u' 和 's'。
+    // 它们分别告诉 print() 将值格式化为 UTF-8 字符和 UTF-8 字符串。
+    // 如果不这样做，我们会看到 '100'，这是 UTF-8 中字符 'd' 对应的十进制值。
+    //（字符串则会报错。）
     //
-    // While we're on this subject, 'c' (ASCII encoded character)
-    // would work in place for 'u' because the first 128 characters
-    // of UTF-8 are the same as ASCII!
+    // 顺便一提，'c'（ASCII 编码字符）也可以替代 'u'，
+    // 因为 UTF-8 的前 128 个字符与 ASCII 相同！
     //
 }

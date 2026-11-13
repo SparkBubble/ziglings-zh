@@ -1,65 +1,53 @@
 //
-// The Zig language is in rapid development and continuously
-// improves the language constructs. Ziglings evolves with it.
+// Zig 语言正在快速发展，语言结构也在不断改进。Ziglings 随之演进。
 //
-// Until version 0.11, Zig's 'for' loops did not directly
-// replicate the functionality of the C-style: "for(a;b;c)"
-// which are so well suited for iterating over a numeric
-// sequence.
+// 在 0.11 版之前，Zig 的 'for' 循环无法直接实现 C 风格的 "for(a;b;c)"，
+// 而这种形式很适合遍历数字序列。
 //
-// Instead, 'while' loops with counters clumsily stood in their
-// place:
+// 当时只能用带计数器的 'while' 循环笨拙地替代：
 //
 //     var i: usize = 0;
 //     while (i < 10) : (i += 1) {
-//         // Here variable 'i' will have each value 0 to 9.
+//         // 这里变量 'i' 会依次取值 0 到 9。
 //     }
 //
-// But here we are in the glorious future and Zig's 'for' loops
-// can now take this form:
+// 但现在我们已经进入美好的未来，Zig 的 'for' 循环可以这样写：
 //
 //     for (0..10) |i| {
-//         // Here variable 'i' will have each value 0 to 9.
+//         // 这里变量 'i' 会依次取值 0 到 9。
 //     }
 //
-// The key to understanding this example is to know that '0..9'
-// uses the new range syntax:
+// 理解这个例子的关键是知道 '0..9' 使用了新的范围语法：
 //
-//     0..10 is a range from 0 to 9
-//     1..4  is a range from 1 to 3
+//     0..10 表示从 0 到 9 的范围
+//     1..4  表示从 1 到 3 的范围
 //
-//     Crucially, the end value is EXCLUSIVE.
+//     重要的是，结束值不包含在范围内。
 //
-// At the moment, ranges in loops are only supported in 'for' loops.
+// 目前，只有 'for' 循环支持使用范围。
 //
-// Perhaps you recall Exercise 13? We were printing a numeric
-// sequence like so:
+// 还记得练习 13 吗？当时我们这样打印数字序列：
 //
 //     var n: u32 = 1;
 //
-//     // I want to print every number between 1 and 20 that is NOT
-//     // divisible by 3 or 5.
+//     // 我想打印 1 到 20 之间不能被 3 或 5 整除的所有数字。
 //     while (n <= 20) : (n += 1) {
-//         // The '%' symbol is the "modulo" operator and it
-//         // returns the remainder after division.
+//         // '%' 符号是“取模”运算符，会返回除法的余数。
 //         if (n % 3 == 0) continue;
 //         if (n % 5 == 0) continue;
 //         std.debug.print("{} ", .{n});
 //     }
 //
-//  Let's try out the new form of 'for' to re-implement that
-//  exercise:
+//  来试试用新的 'for' 循环形式重写那个练习：
 //
 const std = @import("std");
 
 pub fn main() void {
 
-    // I want to print every number between 1 and 20 that is NOT
-    // divisible by 3 or 5.
+    // 我想打印 1 到 20 之间不能被 3 或 5 整除的所有数字。
     for (???) |n| {
 
-        // The '%' symbol is the "modulo" operator and it
-        // returns the remainder after division.
+        // '%' 符号是“取模”运算符，会返回除法的余数。
         if (n % 3 == 0) continue;
         if (n % 5 == 0) continue;
         std.debug.print("{} ", .{n});
@@ -67,15 +55,14 @@ pub fn main() void {
 
     std.debug.print("\n", .{});
 
-    // Let's also print every number from 1 through 15
+    // 我们也打印从 1 到 15 的所有数字。
     for (???) |n| {
         std.debug.print("{} ", .{n});
     }
     std.debug.print("\n", .{});
 }
 //
-// That's a bit nicer, right?
+// 这样好一些了，对吧？
 //
-// Of course, both 'while' and 'for' have different advantages.
-// Exercises 11, 12, and 14 would NOT be simplified by switching
-// a 'while' for a 'for'.
+// 当然，'while' 和 'for' 各有优势。将练习 11、12 和 14 中的 'while'
+// 换成 'for' 并不会让代码更简单。

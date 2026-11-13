@@ -1,26 +1,24 @@
 //
-// Tasks often need to communicate! Io provides Queue for this -
-// a bounded, thread-safe channel for passing data between tasks:
+// 任务经常需要相互通信！Io 为此提供 Queue，即用于任务间传递数据的
+// 有界、线程安全通道：
 //
 //     var backing: [16]u32 = undefined;
 //     var queue: std.Io.Queue(u32) = .init(&backing);
 //
-//     // Producer task:
-//     try queue.putOne(io, value);    // blocks if queue is full
+//     // 生产者任务：
+//     try queue.putOne(io, value);    // 队列已满时阻塞
 //
-//     // Consumer task:
-//     const val = try queue.getOne(io);  // blocks if queue is empty
+//     // 消费者任务：
+//     const val = try queue.getOne(io);  // 队列为空时阻塞
 //
-// When the producer is done, it calls queue.close(io) to signal
-// that no more data is coming. After that, getOne() will return
-// error.Closed once the queue is drained.
+// 生产者完成后，会调用 queue.close(io) 表示不会再有数据。
+// 队列清空后，getOne() 会返回 error.Closed。
 //
-// This is the classic producer/consumer pattern - one task
-// generates work, another processes it, and the queue handles
-// all the synchronization automatically.
+// 这是经典的生产者/消费者模式：一个任务生成工作，另一个任务处理，
+// 队列会自动处理所有同步工作。
 //
-// Fix this program: the producer sends numbers 1..10, the
-// consumer sums them up. The expected sum is 55.
+// 请修复此程序：生产者发送数字 1..10，消费者将它们求和。
+// 预期总和为 55。
 //
 const std = @import("std");
 const print = std.debug.print;
@@ -40,12 +38,12 @@ pub fn main(init: std.process.Init) !void {
 }
 
 fn producer(io: std.Io, queue: *std.Io.Queue(u32)) void {
-    // Send numbers 1 through 10 into the queue.
+    // 将数字 1 到 10 发送到队列。
     for (1..11) |i| {
-        // What Queue method sends a single element, blocking if full?
+        // Queue 的哪个方法会发送单个元素，并在队列已满时阻塞？
         queue.???(io, @intCast(i)) catch return;
     }
-    // Signal that we're done sending.
+    // 发出发送完成的信号。
     queue.close(io);
 }
 

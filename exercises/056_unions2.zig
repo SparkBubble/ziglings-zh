@@ -1,10 +1,8 @@
 //
-// It is really quite inconvenient having to manually keep track
-// of the active field in our union, isn't it?
+// 必须手动跟踪联合体中激活的字段，确实很不方便，对吧？
 //
-// Thankfully, Zig also has "tagged unions", which allow us to
-// store an enum value within our union representing which field
-// is active.
+// 幸好，Zig 还有“带标签联合体”，可以在联合体中存储一个枚举值，
+// 用来表示哪个字段处于激活状态。
 //
 //     const FooTag = enum{ small, medium, large };
 //
@@ -14,8 +12,7 @@
 //         large: u64,
 //     };
 //
-// Now we can use a switch directly on the union to act on the
-// active field:
+// 现在可以直接对联合体使用 switch，操作激活字段：
 //
 //     var f = Foo{ .small = 10 };
 //
@@ -25,8 +22,7 @@
 //         .large => |my_large| do_something(my_large),
 //     }
 //
-// Let's make our Insects use a tagged union (Doctor Zoraptera
-// approves).
+// 让我们的 Insects 使用带标签联合体吧（Zoraptera 博士表示赞同）。
 //
 const std = @import("std");
 
@@ -43,7 +39,7 @@ pub fn main() void {
 
     std.debug.print("Insect report! ", .{});
 
-    // Could it really be as simple as just passing the union?
+    // 真的只要传入这个联合体就这么简单吗？
     printInsect(???);
     printInsect(???);
 
@@ -57,8 +53,6 @@ fn printInsect(insect: Insect) void {
     }
 }
 
-// By the way, did unions remind you of optional values and errors?
-// Optional values are basically "null unions" and errors use "error
-// union types". Now we can add our own unions to the mix to handle
-// whatever situations we might encounter:
+// 顺便问一下，联合体有没有让你想起可选值和错误？可选值基本上是“null 联合体”，
+// 错误则使用“错误联合类型”。现在我们也可以加入自定义联合体，处理各种情况：
 //          union(Tag) { value: u32, toxic_ooze: void }

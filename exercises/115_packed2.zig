@@ -1,13 +1,12 @@
 //
-// We've already learned about switch statements in exercises 030, 031 and 111.
-// They also work with packed containers:
+// 我们已经在练习 030、031 和 111 中学过 switch 语句。它们也适用于 packed 容器：
 
 const S = packed struct(u2) {
     a: bool,
     b: i1,
 };
 
-// Try to make it compile without adding an `else` prong!
+// 试着让它编译通过，但不要添加 `else` 分支！
 
 comptime {
     const s: S = .{ .a = true, .b = -1 };
@@ -20,18 +19,16 @@ comptime {
     }
 }
 
-// As we can see, switching on packed structs is pretty straightforward.
-// When switching on packed unions however, we'll realize that a packed
-// union never keeps track of its active tag, not even in debug mode! This
-// means that packed unions compare solely by their bit pattern (again, just
-// like integers).
+// 可以看到，对 packed 结构体使用 switch 相当直接。
+// 但对 packed 联合体使用 switch 时会发现，它从不跟踪当前活动标签，调试模式下也一样！
+// 这意味着 packed 联合体只根据位模式进行比较（同整数一样）。
 
 const U = packed union(u2) {
     a: u2,
     b: i2,
 };
 
-// Find and remove the duplicate case!
+// 找出并删除重复的分支！
 
 comptime {
     const u: U = .{ .a = 3 };
@@ -45,13 +42,12 @@ comptime {
     }
 }
 
-// Since packed unions don't have the concept of an active tag, it's always legal
-// to access any of their fields. This can be useful to view the same data from
-// different perspectives seamlessly.
+// packed 联合体没有活动标签的概念，因此访问其中任意字段始终合法。
+// 这有助于从不同角度无缝查看同一份数据。
 //
-// Try to make the float below negative:
+// 试着将下面的浮点数变为负数：
 
-// IEEE 754 binary16 floating-point format
+// IEEE 754 binary16 浮点格式
 const Float = packed union(u16) {
     value: f16,
     bits: packed struct(u16) {
@@ -62,7 +58,7 @@ const Float = packed union(u16) {
 };
 
 pub fn main() void {
-    // Reminder: if the sign bit of a float is set, the number is negative!
+    // 提醒：浮点数的符号位为 1 时，数值为负！
 
     var number: Float = .{ .value = 2.34 };
     number.bits.??? = ???;
@@ -71,8 +67,7 @@ pub fn main() void {
     }
 }
 
-// This concludes our introduction to packed containers. The next time you need
-// control over individual bits, keep them in mind as a potent alternative!
+// packed 容器的介绍到此结束。下次需要控制单个位时，可以考虑这个强大的替代方案！
 //
 
 const std = @import("std");
